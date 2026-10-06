@@ -1,0 +1,14 @@
+loaded_h_0(function(_){var window=this;
+_.h1b=_.x("pfdHGb",[]);
+var e1b,f1b,d1b;_.c1b=function(a,b=!1){var c=!!document.body.dataset.dt,d=document.createElement("div");_.Ym(d,{background:b?"#fff":c?"#e8eaed":"#3c4043","border-radius":"50%",opacity:.001,"pointer-events":"none",position:"absolute"});a.append(d);return d};
+_.g1b=function(a,b,c=!1,d,e=!1,f=!1){var g=_.jv((new _.kv(a,d1b)).fadeOut(),()=>{_.Ym(a,"opacity",.999)}),h=a.clientWidth,k=a.clientHeight,m=Math.hypot(h,k)+20,n=Math.max(h,k)*.6/m,q=f?.15:_.pa()?.18:.1;n=_.jv(_.S0b(_.b1b(_.W0b(_.U0b(new _.kv(b,e1b),"center"),n),q,f1b)),()=>{_.Ym(b,"opacity",.001)});if(e){let r=!!document.body.dataset.dt;_.iv(n,()=>{_.Ym(b,{"box-shadow":`0 0 ${m*.1}px ${m*.1}px ${f?"#fff":r?"#e8eaed":"#3c4043"}`,height:`${m}px`,width:`${m}px`})})}c&&d&&(c=_.gn(d),d=_.gn(a),_.X0b(n,
+c.x-(d.x+h/2),c.y-(d.y+k/2)));return new _.hv([g,n])};e1b={duration:500,easing:"cubic-bezier(.4,0,.2,1)"};f1b={duration:133,easing:"linear"};d1b={duration:250,delay:250,easing:"linear"};
+_.Ur(_.h1b,class extends _.Rr{constructor(a){super(a.Na);this.root=_.Dn(()=>this.getRoot().Za());this.bza=this.getData("sr").Ob();this.Da=_.Dn(()=>_.c1b(this.root(),this.bza));this.La=this.getData("p").Ob();this.H$=!this.getData("ntp").Ob();this.Ea=this.getData("fb").Ob();this.Ia=this.getData("anim").Ob();this.oa=null;this.Ba=this.Ca=0;a=this.getData("tc").Ob();this.Ae((new _.ae(this)).listen(this.root(),a?"click":"touchstart",this.Aa));(0,_.zf)(()=>{this.oa=this.root().parentElement;_.j1b(this.oa);
+this.lLa()})}lLa(){var a=this.root();_.Ym(a,"display","flex");this.La&&_.Ym(a,"border-radius",`${Math.min(a.clientWidth,a.clientHeight)/2}px`);if(this.oa&&this.oa.parentElement&&!this.Ia){let c=_.mn(a);var b=_.mn(this.oa);let d=_.mn(this.oa.parentElement),e=Math.max(b.height,d.height);b=Math.max(b.width,d.width);e>0&&c.height>e&&_.Ym(a,"max-height",`${e}px`);!this.Ea&&b>0&&c.width>b&&_.Ym(a,"max-width",`${b}px`)}}Aa(a){var b=!1,c=this.root();if(this.Ca!==c.clientWidth||this.Ba!==c.clientHeight)this.Ca=
+c.clientWidth,this.Ba=c.clientHeight,b=!0;(0,_.bo)(_.g1b(this.root(),this.Da(),this.H$,a,b,this.bza));return!0}});
+_.v("pfdHGb");
+
+
+_.w();
+});
+// Google Inc.

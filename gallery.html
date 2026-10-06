@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Gallery | Khandelwal Group · Velunia Signature</title>
+  <meta name="description" content="Photo gallery of Velunia Signature perfumes by Khandelwal Group, Pune. Tap any photo to zoom.">
+  <meta name="theme-color" content="#FBF7F2">
+  <link rel="icon" type="image/png" href="assets/brand/favicon.png">
+  <link rel="apple-touch-icon" href="assets/brand/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Jost:wght@400;500&family=Pinyon+Script&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="gpage">
+  <div class="gpage-head">
+    <a class="back" href="index.html#gallery">← Back to Khandelwal Group</a>
+    <a class="btn btn-sm" href="https://wa.me/919371814999" target="_blank" rel="noopener"><img class="wa-ic" src="assets/brand/whatsapp.png" alt="" width="20" height="20">Chat on WhatsApp</a>
+  </div>
+
+  <h1>Gallery</h1>
+  <div class="section-title" style="margin:6px 0 0"><div class="orn"><i></i></div></div>
+  <p class="sub" id="gCount">Tap any photo to zoom</p>
+
+  <div class="gallery" id="gGrid"></div>
+
+  <div class="cta">
+    <p>Like what you see? Ask us about any fragrance.</p>
+    <a class="btn" href="https://wa.me/919371814999?text=Hi%20Khandelwal%20Group%2C%20I%20saw%20your%20gallery%20and%20would%20like%20to%20know%20more." target="_blank" rel="noopener"><img class="wa-ic" src="assets/brand/whatsapp.png" alt="" width="20" height="20">Chat on WhatsApp</a>
+  </div>
+</div>
+
+<footer class="footer" style="max-width:1180px;margin:0 auto 24px">
+  <div class="script">Velunia Signature</div>
+  <p>Fragrances that speak, impressions that last.</p>
+  <p>© <span id="yr">2026</span> Khandelwal Group · Kondhwa Budruk, Pune, Maharashtra 411048</p>
+</footer>
+
+<script src="js/gallery-data.js"></script>
+<script src="js/viewer.js"></script>
+<script>
+  (function () {
+    var G = window.GALLERY || [];
+    var grid = document.getElementById('gGrid');
+    function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+    grid.innerHTML = G.map(function (g, i) {
+      return '<button type="button" data-i="' + i + '" aria-label="Zoom photo ' + (i + 1) + ' of ' + G.length + '"' + (g.bg ? ' style="background:' + g.bg + '"' : '') + '>' +
+        '<img src="' + g.thumb + '" alt="' + esc(g.alt) + '" loading="' + (i < 8 ? 'eager' : 'lazy') + '" width="480" height="640" style="object-fit:' + g.fit + '">' +
+        '</button>';
+    }).join('');
+    document.getElementById('gCount').textContent = G.length + ' photos · tap any photo to zoom';
+    grid.addEventListener('click', function (e) {
+      var b = e.target.closest('button[data-i]');
+      if (!b) return;
+      window.ZoomViewer.open(G.map(function (g) { return { src: g.full, alt: g.alt }; }), +b.dataset.i);
+    });
+    document.getElementById('yr').textContent = new Date().getFullYear();
+  })();
+</script>
+</body>
+</html>
