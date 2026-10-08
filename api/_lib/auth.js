@@ -1,5 +1,11 @@
-// Admin login: phone + password (scrypt hash in ADMIN_PASSWORD_HASH), signed session cookie.
+// Admin login: phone + password, signed session cookie.
+// Defaults: 9371814999 / admin123. Override with ADMIN_PHONE and ADMIN_PASSWORD (or ADMIN_PASSWORD_HASH).
 const crypto = require('crypto');
+
+const DEFAULT_PHONE = '9371814999';
+const DEFAULT_PASSWORD = 'admin123';
+const adminPhone = () => process.env.ADMIN_PHONE || DEFAULT_PHONE;
+const adminPassword = () => process.env.ADMIN_PASSWORD || DEFAULT_PASSWORD;
 
 const COOKIE = 'kg_admin';
 const MAX_AGE = 7 * 24 * 60 * 60; // 7 days
@@ -12,24 +18,32 @@ function normPhone(s) {
   return d;
 }
 
+// signing key: SESSION_SECRET if set, otherwise derived from the (private) MongoDB connection string
 function secret() {
   const s = process.env.SESSION_SECRET;
-  if (!s || s.length < 32) throw new Error('SESSION_SECRET must be set (32+ characters)');
-  return s;
+  if (s && s.length >= 32) return s;
+  const uri = process.env.MONGODB_URI;
+  if (!uri) throw new Error('MONGODB_URI is not set');
+  return crypto.createHash('sha256').update('kg-session:' + uri).digest('hex');
 }
 
 const sign = data => crypto.createHmac('sha256', secret()).update(data).digest('base64url');
 
 // changing the password changes this, which signs everyone out
-const passwordStamp = () => sign('pw:' + (process.env.ADMIN_PASSWORD_HASH || '')).slice(0, 12);
+const passwordStamp = () => sign('pw:' + (process.env.ADMIN_PASSWORD_HASH || adminPassword())).slice(0, 12);
 
 function safeEqual(a, b) {
   const x = Buffer.from(String(a)), y = Buffer.from(String(b));
   return x.length === y.length && crypto.timingSafeEqual(x, y);
 }
 
-// stored format: scrypt:<salt hex>:<hash hex>
+// ADMIN_PASSWORD_HASH (optional) format: scrypt:<salt hex>:<hash hex>; otherwise the plain password is compared
 function verifyPassword(password) {
+  if (!process.env.ADMIN_PASSWORD_HASH) {
+    const a = crypto.createHash('sha256').update(String(password || '')).digest();
+    const b = crypto.createHash('sha256').update(String(adminPassword())).digest();
+    return crypto.timingSafeEqual(a, b);
+  }
   const parts = String(process.env.ADMIN_PASSWORD_HASH || '').split(':');
   if (parts.length !== 3 || parts[0] !== 'scrypt') return false;
   const salt = Buffer.from(parts[1], 'hex'), expected = Buffer.from(parts[2], 'hex');
@@ -38,7 +52,7 @@ function verifyPassword(password) {
 }
 
 function checkCredentials(phone, password) {
-  const okPhone = safeEqual(normPhone(phone), normPhone(process.env.ADMIN_PHONE));
+  const okPhone = safeEqual(normPhone(phone), normPhone(adminPhone()));
   const okPass = verifyPassword(password); // always run, so timing doesn't reveal which part was wrong
   return okPhone && okPass;
 }

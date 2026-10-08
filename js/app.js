@@ -7,6 +7,7 @@
     tz: 'Asia/Kolkata',
     openHour: 9,                   // 9 AM
     closeHour: 17,                 // 5 PM
+    openDays: [1, 2, 3, 4, 5],     // Monday to Friday (0 = Sunday, 6 = Saturday)
     initialProducts: 8,
     carouselPhotos: 10             // photos shown in the swipe carousel; the rest are on gallery.html
   };
@@ -189,15 +190,20 @@
     return new Date(new Date().toLocaleString('en-US', { timeZone: CFG.tz }));
   }
   const fmtHour = h => `${((h + 11) % 12) + 1}:00 ${h < 12 ? 'AM' : 'PM'}`;
+  const isOpenDay = d => CFG.openDays.includes(d);
+  const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   function updateStatus() {
-    const n = istNow(), mins = n.getHours() * 60 + n.getMinutes();
-    $$('#hoursList li').forEach(li => li.classList.toggle('today', +li.dataset.d === n.getDay()));
+    const n = istNow(), day = n.getDay(), mins = n.getHours() * 60 + n.getMinutes();
+    $$('#hoursList li').forEach(li => li.classList.toggle('today', +li.dataset.d === day));
     const s = $('#openStatus'), label = $('span', s);
-    const isOpen = mins >= CFG.openHour * 60 && mins < CFG.closeHour * 60;
+    const isOpen = isOpenDay(day) && mins >= CFG.openHour * 60 && mins < CFG.closeHour * 60;
     s.classList.toggle('open', isOpen); s.classList.toggle('closed', !isOpen);
-    if (isOpen) label.textContent = `Open now · closes at ${fmtHour(CFG.closeHour)}`;
-    else if (mins < CFG.openHour * 60) label.textContent = `Closed · opens today at ${fmtHour(CFG.openHour)}`;
-    else label.textContent = `Closed · opens tomorrow at ${fmtHour(CFG.openHour)}`;
+    if (isOpen) { label.textContent = `Open now · closes at ${fmtHour(CFG.closeHour)}`; return; }
+    if (isOpenDay(day) && mins < CFG.openHour * 60) { label.textContent = `Closed · opens today at ${fmtHour(CFG.openHour)}`; return; }
+    let k = 1;
+    while (k < 7 && !isOpenDay((day + k) % 7)) k++;
+    const when = k === 1 ? 'tomorrow' : DAY_NAMES[(day + k) % 7];
+    label.textContent = `Closed · opens ${when} at ${fmtHour(CFG.openHour)}`;
   }
   updateStatus(); setInterval(updateStatus, 60000);
 
@@ -227,10 +233,26 @@
     const iso = d => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
     const label = m => { const h = Math.floor(m / 60), mm = m % 60; return `${((h + 11) % 12) + 1}:${pad2(mm)} ${h < 12 ? 'AM' : 'PM'}`; };
 
+    // day of week of the chosen date (0 = Sunday), or null when none is chosen
+    const chosenDay = () => {
+      if (!date.value) return null;
+      const [y, m, d] = date.value.split('-').map(Number);
+      return new Date(y, m - 1, d).getDay();
+    };
+    const closedDayMsg = () => `We're closed on Saturdays and Sundays. Please pick a weekday.`;
+
     function buildTimes() {
       const n = istNow(), today = date.value === iso(n);
       const nowMin = n.getHours() * 60 + n.getMinutes();
       const prev = time.value;
+      const day = chosenDay();
+      if (day !== null && !isOpenDay(day)) {
+        time.innerHTML = '<option value="">Closed on this day</option>';
+        time.disabled = true;
+        setErr(date, closedDayMsg());
+        return;
+      }
+      time.disabled = false;
       let html = '<option value="">Select a time</option>';
       for (let m = CFG.openHour * 60; m < CFG.closeHour * 60; m += 30) {
         const past = today && m <= nowMin;
@@ -248,8 +270,9 @@
       const name = clean($('#aName').value);
       let ok = true;
       ok = setErr($('#aName'), name.length < 2 ? 'Enter your name.' : '') && ok;
-      ok = setErr(date, !date.value ? 'Choose a date.' : date.value < date.min ? 'Choose today or a later date.' : '') && ok;
-      ok = setErr(time, !time.value ? 'Choose a time.' : '') && ok;
+      const day = chosenDay();
+      ok = setErr(date, !date.value ? 'Choose a date.' : date.value < date.min ? 'Choose today or a later date.' : !isOpenDay(day) ? closedDayMsg() : '') && ok;
+      ok = setErr(time, !time.value && isOpenDay(day) ? 'Choose a time.' : '') && ok;
       if (!ok) return;
       const [y, m, d] = date.value.split('-').map(Number);
       const nice = new Date(y, m - 1, d).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });

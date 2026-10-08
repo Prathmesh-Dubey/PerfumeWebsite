@@ -34,6 +34,7 @@ http.createServer(async (req, res) => {
   fs.stat(f, (err, st) => {
     if (err || !st.isFile()) { res.statusCode = 404; return res.end('Not found'); }
     res.setHeader('Content-Type', TYPES[path.extname(f).toLowerCase()] || 'application/octet-stream');
+    res.setHeader('Cache-Control', 'no-cache'); // always show the latest local edits
     fs.createReadStream(f).pipe(res);
   });
 }).listen(PORT, () => console.log(`Site: http://localhost:${PORT}   Admin: http://localhost:${PORT}/edit`));

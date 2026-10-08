@@ -12,7 +12,9 @@ window.SITE_DEFAULTS = (() => {
     tagline: 'Crafting scents. Creating impressions.',
     servicesIntro: 'Fragrance solutions for businesses, events and celebrations.',
     productsIntro: 'Velunia Signature eau de parfum. Tap a bottle for the full details.',
-    footerTagline: 'Fragrances that speak, impressions that last.'
+    footerTagline: 'Fragrances that speak, impressions that last.',
+    locationTitle: 'Pune',
+    locationAddress: 'FV5H+C6P, Kondhwa Budruk, Pune, Maharashtra 411048'
   };
 
   const services = [

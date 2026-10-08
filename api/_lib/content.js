@@ -1,6 +1,6 @@
 // Validates website content sent from /edit before it is saved.
 
-const TEXT_KEYS = ['heroEyebrow', 'heroTitle1', 'heroTitle2', 'heroLead', 'aboutText', 'tagline', 'servicesIntro', 'productsIntro', 'footerTagline'];
+const TEXT_KEYS = ['heroEyebrow', 'heroTitle1', 'heroTitle2', 'heroLead', 'aboutText', 'tagline', 'servicesIntro', 'productsIntro', 'footerTagline', 'locationTitle', 'locationAddress'];
 const IMG_RE = /^(assets\/[\w\-/. ]+\.(jpe?g|png|webp)|\/api\/img\?id=[a-f0-9]{24})$/i;
 
 function bad(msg) { return Object.assign(new Error(msg), { status: 400 }); }

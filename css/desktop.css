@@ -113,17 +113,34 @@ body { background: var(--ivory); font-size: 17px; }
 .section-title h2 { font-size: 48px; }
 .section-title p { font-size: 17px; max-width: 560px; margin: 10px auto 0; }
 
-/* about — big pull-quote beside the story */
+/* about — heading and quote on the left, story and qualities on the right */
 .main > .about {
-  background: var(--pearl); border: 0; border-radius: 0; box-shadow: none; text-align: left;
-  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-areas: "tag story" "tag vals";
-  column-gap: 96px; row-gap: 28px; align-items: center;
+  background: var(--pearl); border: 0; border-radius: 0; box-shadow: none; text-align: left; overflow: visible;
+  display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); column-gap: 7vw; align-items: center;
   border-bottom: 1px solid var(--line);
 }
-.about p:first-child { grid-area: story; font-size: 20px; line-height: 1.8; }
-.about .tagline { grid-area: tag; font-size: 60px; line-height: 1.08; margin: 0; align-self: center; position: relative; padding-left: 28px; border-left: 2px solid var(--rose); }
-.about .values { grid-area: vals; justify-content: flex-start; margin: 0; }
-.about .values span { font-size: 12px; padding: 8px 16px; }
+.main > .about::before { display: none; }
+.about-head { position: relative; padding-left: 34px; border-left: 2px solid var(--rose); }
+.about-eyebrow { font-size: 13px; }
+.about-eyebrow::before { display: none; }
+.about-eyebrow::after { width: 44px; }
+.about .tagline { font-size: clamp(46px, 4.2vw, 68px); line-height: 1.04; margin-top: 18px; }
+.about-orn { justify-content: flex-start; margin: 26px 0 0; }
+.about-orn::before { display: none; }
+.about-orn::after { width: 64px; order: 2; }
+.about-text { font-size: 19px; line-height: 1.85; max-width: 680px; margin: 0; }
+.values { margin-top: 40px; gap: 18px; border-top: 0; }
+.values li {
+  flex-direction: row; align-items: center; text-align: left; gap: 14px;
+  padding: 18px 20px; border: 1px solid var(--line) !important; border-radius: 14px; background: var(--ivory);
+  transition: transform .25s, box-shadow .25s, border-color .25s;
+  display: grid; grid-template-columns: 48px 1fr; grid-template-rows: auto auto; column-gap: 14px; row-gap: 2px;
+}
+.values li:hover { transform: translateY(-3px); box-shadow: var(--shadow-lift); border-color: var(--rose) !important; }
+.values .v-ic { grid-row: span 2; width: 48px; height: 48px; }
+.values .v-ic svg { width: 22px; height: 22px; }
+.values b { font-size: 15px; align-self: end; }
+.values small { font-size: 13px; align-self: start; }
 
 /* contact + QR side by side */
 .duo { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 80px; align-items: start; }
@@ -235,8 +252,11 @@ body { background: var(--ivory); font-size: 17px; }
   .dk-stats b { font-size: 28px; }
   .dk-float-a { left: -10px; }
   .dk-float-b { right: -10px; }
-  .about .tagline { font-size: 46px; }
-  .about { column-gap: 56px; }
+  .main > .about { grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); column-gap: 48px; }
+  .about .tagline { font-size: 44px; }
+  .values { gap: 12px; }
+  .values li { padding: 14px; grid-template-columns: 40px 1fr; column-gap: 10px; }
+  .values .v-ic { width: 40px; height: 40px; }
   .duo, .main > .two { gap: 48px; }
   .cards.services, .cards.products { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; }
   #galTrack { grid-template-columns: repeat(4, minmax(0, 1fr)); }

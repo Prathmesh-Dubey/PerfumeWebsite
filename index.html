@@ -34,7 +34,7 @@
     },
     "openingHoursSpecification": [{
       "@type": "OpeningHoursSpecification",
-      "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
+      "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday"],
       "opens": "09:00",
       "closes": "17:00"
     }]
@@ -107,7 +107,7 @@
         <button class="dk-vbtn" id="dkMute" type="button" aria-label="Turn sound on"><svg class="ic"><use href="#i-mute"/></svg></button>
       </div>
       <div class="dk-float dk-float-a"><span>Eau de parfum</span><b>from ₹<span data-calc="minPrice">400</span></b></div>
-      <div class="dk-float dk-float-b"><i></i><span>Open daily · 9 AM – 5 PM</span></div>
+      <div class="dk-float dk-float-b"><i></i><span>Mon – Fri · 9 AM – 5 PM</span></div>
     </div>
   </div>
 </section>
@@ -129,10 +129,14 @@
 
     <section class="card profile" aria-label="Khandelwal Group">
       <div class="profile-top">
-        <div class="avatar"><img src="assets/brand/logo.jpg" alt="Velunia Signature logo" width="104" height="104"></div>
+        <div class="avatar avatar-banner">
+          <picture>
+            <source media="(min-width: 640px)" srcset="img/dekstop.png" width="1672" height="941">
+            <img src="img/mobile.jpg" alt="Velunia Signature fragrance by Khandelwal Group" width="1024" height="1535">
+          </picture>
+        </div>
         <div class="brand">
-          <h1>Khandelwal Group</h1>
-          <div class="script">Velunia Signature</div>
+          <h1 class="sr-only">Khandelwal Group · Velunia Signature</h1>
           <div class="sub" data-k="heroEyebrow">Perfumes &amp; Fragrances · Pune</div>
         </div>
       </div>
@@ -157,10 +161,20 @@
   <!-- ===== main column ===== -->
   <main class="main">
 
-    <section class="card about" id="about">
-      <p data-k="aboutText">Khandelwal Group is a Pune-based manufacturer and supplier of premium fragrances and perfumes. Under our signature label, Velunia, we craft long-lasting eau de parfums for women, men and every taste in between, and supply corporate gifting, private label and bulk orders across India.</p>
-      <p class="tagline" data-k="tagline">Crafting scents. Creating impressions.</p>
-      <div class="values"><span>Premium quality</span><span>Long lasting</span><span>Custom made</span></div>
+    <section class="card about" id="about" aria-labelledby="h-about">
+      <div class="about-head">
+        <span class="about-eyebrow" id="h-about">About us</span>
+        <p class="tagline" data-k="tagline">Crafting scents. Creating impressions.</p>
+        <div class="about-orn" aria-hidden="true"><i></i></div>
+      </div>
+      <div class="about-body">
+        <p class="about-text" data-k="aboutText">Khandelwal Group is a Pune-based manufacturer and supplier of premium fragrances and perfumes. Under our signature label, Velunia, we craft long-lasting eau de parfums for women, men and every taste in between, and supply corporate gifting, private label and bulk orders across India.</p>
+        <ul class="values">
+          <li><span class="v-ic"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12l4 6-10 12L2 9z"/><path d="M11 3 8 9l4 12 4-12-3-6"/><path d="M2 9h20"/></svg></span><b>Premium quality</b><small>Velunia Signature</small></li>
+          <li><span class="v-ic"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg></span><b>Long lasting</b><small>Eau de parfum</small></li>
+          <li><span class="v-ic"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12v9H4v-9"/><rect x="2" y="7" width="20" height="5"/><path d="M12 21V7"/><path d="M12 7H7.5a2.5 2.5 0 1 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 1 0 0-5C13 2 12 7 12 7z"/></svg></span><b>Custom made</b><small>Gifting &amp; private label</small></li>
+        </ul>
+      </div>
     </section>
 
 <div class="duo">
@@ -177,7 +191,7 @@
         </a>
         <a class="card tile" href="https://www.google.com/maps/search/?api=1&query=FV5H%2BC6P%2C%20Kondhwa%20Budruk%2C%20Pune%2C%20Maharashtra%20411048" target="_blank" rel="noopener">
           <span class="ico"><svg class="ic"><use href="#i-pin"/></svg></span>
-          <strong>Pune</strong><small>FV5H+C6P, Kondhwa Budruk, Pune, Maharashtra 411048</small>
+          <strong data-k="locationTitle">Pune</strong><small data-k="locationAddress">FV5H+C6P, Kondhwa Budruk, Pune, Maharashtra 411048</small>
         </a>
       </div>
     </section>
@@ -253,13 +267,13 @@
           <li data-d="3"><span>Wednesday</span><span>9:00 AM – 5:00 PM</span></li>
           <li data-d="4"><span>Thursday</span><span>9:00 AM – 5:00 PM</span></li>
           <li data-d="5"><span>Friday</span><span>9:00 AM – 5:00 PM</span></li>
-          <li data-d="6"><span>Saturday</span><span>9:00 AM – 5:00 PM</span></li>
-          <li data-d="0"><span>Sunday</span><span>9:00 AM – 5:00 PM</span></li>
+          <li data-d="6" class="off"><span>Saturday</span><span>Closed</span></li>
+          <li data-d="0" class="off"><span>Sunday</span><span>Closed</span></li>
         </ul>
       </section>
 
       <section id="appointment" aria-labelledby="h-appt">
-        <div class="section-title"><h2 id="h-appt">Make an Appointment</h2><p>Pick a day and time. We'll confirm on WhatsApp.</p><div class="orn"><i></i></div></div>
+        <div class="section-title"><h2 id="h-appt">Make an Appointment</h2><p>Pick a weekday (Monday to Friday) and a time. We'll confirm on WhatsApp.</p><div class="orn"><i></i></div></div>
         <form class="card form" id="apptForm" novalidate>
           <div class="field"><label for="aName">Your name</label><input id="aName" name="name" autocomplete="name" placeholder="Full name" required><span class="err"></span></div>
           <div class="row">

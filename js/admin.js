@@ -20,7 +20,9 @@
     ['aboutText', 'About paragraph', 'The About section text', true],
     ['servicesIntro', 'Services subtitle', 'Under the "Our Services" heading'],
     ['productsIntro', 'Products subtitle', 'Under the "Products" heading'],
-    ['footerTagline', 'Footer line', 'At the bottom of the page']
+    ['footerTagline', 'Footer line', 'At the bottom of the page'],
+    ['locationTitle', 'Location title', 'Bold line on the location card in "Get in Touch" (the map link does not change)'],
+    ['locationAddress', 'Location address', 'Address line under the location title (the map link does not change)']
   ];
 
   let state = null;       // content being edited
