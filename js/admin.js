@@ -1,5 +1,5 @@
 /* /edit — website editor for Khandelwal Group.
-   Log in, change bottles/prices, gallery photos and texts, then "Save changes" writes to MongoDB
+   Log in, change bottles/prices, services, gallery photos and texts, then "Save changes" writes to MongoDB
    and the live website shows the new content within a few seconds. */
 (() => {
   'use strict';
@@ -120,6 +120,7 @@
     st.textContent = busy > 0 ? 'Uploading photo…' : saving ? 'Saving…' : dirty ? 'Unsaved changes' : 'All changes saved';
     btn.disabled = !dirty || busy > 0 || saving;
     $('#nProducts').textContent = state ? `(${state.products.length})` : '';
+    $('#nServices').textContent = state ? `(${state.services.length})` : '';
     $('#nGallery').textContent = state ? `(${state.gallery.length})` : '';
   }
 
@@ -134,6 +135,13 @@
     }
     const bad = state.products.findIndex(p => !(+p.size > 0) || !(+p.price >= 0) || p.price === '');
     if (bad > -1) { setTab('products'); return toast(`Check the size and price of bottle #${bad + 1}.`, 4000); }
+    const svc = state.services.findIndex(s => !s.img || !String(s.t).trim());
+    if (svc > -1) {
+      setTab('services'); renderServices();
+      const card = $(`#serviceList [data-i="${svc}"]`);
+      if (card) { card.scrollIntoView({ behavior: 'smooth', block: 'center' }); card.classList.add('is-new'); }
+      return toast(`Service #${svc + 1} needs a photo and a title before saving.`, 4000);
+    }
 
     saving = true; updateStatus();
     try {
@@ -141,7 +149,8 @@
       await api('/api/content', { method: 'PUT', json: { content } });
       savedSnap = snap();
       state.products.forEach(p => delete p._new);
-      renderProducts();
+      state.services.forEach(s => delete s._new);
+      renderProducts(); renderServices();
       toast('Saved. The website now shows your changes.');
     } catch (e) {
       toast(e.message, 5000);
@@ -242,6 +251,78 @@
     toast('New bottle added at the top. Add a photo, name and price, then save.', 4000);
   });
 
+  /* ---------- services ---------- */
+  function serviceCard(s, i) {
+    const n = state.services.length;
+    return `
+      <article class="card adm-item${s._new ? ' is-new' : ''}" data-i="${i}">
+        <div class="adm-photo${s.img ? '' : ' empty'}">
+          ${s.img ? `<img src="${esc(s.img)}" alt="" loading="lazy">` : '<span>No photo yet.<br>Tap “Add photo”.</span>'}
+          <span class="adm-pos">#${i + 1}</span>
+          ${s._busy ? '<span class="adm-busy">Uploading…</span>' : ''}
+          <div class="adm-photo-tools">
+            <button type="button" class="adm-chip" data-act="photo">${s.img ? 'Change photo' : 'Add photo'}</button>
+          </div>
+        </div>
+        <div class="adm-body">
+          <div class="field"><label>Title</label><input data-f="t" value="${esc(s.t)}" maxlength="80" placeholder="e.g. Corporate Gifting"></div>
+          <div class="field"><label>Description</label><textarea data-f="d" maxlength="300" placeholder="One or two short lines about this service">${esc(s.d)}</textarea></div>
+        </div>
+        <div class="adm-actions">
+          <button type="button" data-act="up" ${i === 0 ? 'disabled' : ''} aria-label="Move up">↑ Up</button>
+          <button type="button" data-act="down" ${i === n - 1 ? 'disabled' : ''} aria-label="Move down">↓ Down</button>
+          <button type="button" data-act="del" class="adm-del">Delete</button>
+        </div>
+      </article>`;
+  }
+  function renderServices() {
+    $('#serviceList').innerHTML = state.services.length
+      ? state.services.map(serviceCard).join('')
+      : '<p class="adm-empty">No services. The Services section is hidden on the website until you add one.</p>';
+    updateStatus();
+  }
+
+  $('#serviceList').addEventListener('input', e => {
+    const f = e.target.dataset.f; if (!f) return;
+    state.services[+e.target.closest('[data-i]').dataset.i][f] = e.target.value;
+    updateStatus();
+  });
+
+  $('#serviceList').addEventListener('click', async e => {
+    const b = e.target.closest('[data-act]'); if (!b) return;
+    const i = +b.closest('[data-i]').dataset.i;
+    const list = state.services, s = list[i];
+    const act = b.dataset.act;
+
+    if (act === 'up' || act === 'down') {
+      const j = act === 'up' ? i - 1 : i + 1;
+      if (j < 0 || j >= list.length) return;
+      [list[i], list[j]] = [list[j], list[i]];
+      renderServices();
+    } else if (act === 'del') {
+      if (s._busy) return;
+      if (!confirm(`Delete service "${s.t || 'new service'}"? It will disappear from the website after you save.`)) return;
+      list.splice(i, 1); renderServices();
+    } else if (act === 'photo') {
+      const [file] = await pickFiles(false); if (!file) return;
+      s._busy = true; renderServices();
+      try {
+        s.img = await withBusy(() => upload(file, 1000));
+        toast('Photo updated. Remember to save.');
+      } catch (err) { toast(err.message, 5000); }
+      finally { delete s._busy; renderServices(); }
+    }
+  });
+
+  $('#addService').addEventListener('click', () => {
+    if (state.services.length >= 30) return toast('You can have up to 30 services. Delete one to add another.', 4000);
+    state.services.unshift({ t: '', d: '', img: '', _new: true });
+    renderServices();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const inp = $('#serviceList [data-i="0"] input[data-f="t"]'); if (inp) inp.focus();
+    toast('New service added at the top. Add a photo, title and description, then save.', 4000);
+  });
+
   /* ---------- gallery ---------- */
   function galleryCard(g, i) {
     const n = state.gallery.length;
@@ -321,7 +402,7 @@
     if (ok) toast(`${ok} photo${ok > 1 ? 's' : ''} added at the start. Remember to save.`, 3500);
   });
 
-  /* ---------- texts + services ---------- */
+  /* ---------- texts ---------- */
   function renderTexts() {
     $('#textList').innerHTML = TEXT_FIELDS.map(([k, label, help, long]) => `
       <div class="field${long ? ' wide' : ''}">
@@ -331,22 +412,10 @@
           : `<input id="t-${k}" data-k="${k}" maxlength="300" value="${esc(state.texts[k] ?? '')}" placeholder="${esc(D.texts[k])}">`}
         <small>${esc(help)}</small>
       </div>`).join('');
-    $('#serviceList').innerHTML = state.services.map((s, i) => `
-      <div class="card adm-service" data-i="${i}">
-        <img src="${esc(s.img)}" alt="" loading="lazy">
-        <div>
-          <div class="field"><label>Title</label><input data-s="t" value="${esc(s.t)}" maxlength="80"></div>
-          <div class="field"><label>Description</label><textarea data-s="d" maxlength="300">${esc(s.d)}</textarea></div>
-        </div>
-      </div>`).join('');
   }
   $('#textList').addEventListener('input', e => {
     const k = e.target.dataset.k; if (!k) return;
     state.texts[k] = e.target.value; updateStatus();
-  });
-  $('#serviceList').addEventListener('input', e => {
-    const f = e.target.dataset.s; if (!f) return;
-    state.services[+e.target.closest('[data-i]').dataset.i][f] = e.target.value; updateStatus();
   });
 
   /* ---------- load editor ---------- */
@@ -359,15 +428,15 @@
     const base = clone(D);
     state = {
       texts: Object.assign({}, base.texts, content?.texts || {}),
-      services: content?.services?.length ? content.services : base.services,
+      services: Array.isArray(content?.services) ? content.services : base.services,
       products: Array.isArray(content?.products) ? content.products : base.products,
       gallery: Array.isArray(content?.gallery) ? content.gallery : base.gallery
     };
     // nothing saved yet: the built-in content counts as unsaved so the first Save stores it
     savedSnap = content ? snap() : '';
-    renderProducts(); renderGallery(); renderTexts();
+    renderProducts(); renderServices(); renderGallery(); renderTexts();
     const tab = location.hash.slice(1);
-    setTab(['products', 'gallery', 'texts'].includes(tab) ? tab : 'products');
+    setTab(['products', 'services', 'gallery', 'texts'].includes(tab) ? tab : 'products');
     show('app');
     updateStatus();
   }

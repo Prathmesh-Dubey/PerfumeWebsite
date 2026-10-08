@@ -72,6 +72,7 @@ label.btn { cursor: pointer; }
 .adm-body .field { gap: 4px; }
 .adm-body .field label { font-size: 12px; color: var(--sage); }
 .adm-body .field input, .adm-body .field select, .adm-body .field textarea { min-height: 40px; padding: 8px 10px; font-size: 15px; }
+.adm-body .field textarea { min-height: 88px; }
 .adm-price { position: relative; }
 .adm-price span { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--sage); }
 .adm-price input { padding-left: 24px !important; }
@@ -88,12 +89,6 @@ label.btn { cursor: pointer; }
 .adm-texts .field.wide { grid-column: 1 / -1; }
 .adm-texts textarea { min-height: 96px; }
 .adm-texts .field small { color: var(--sage); font-size: 12px; }
-.adm-services { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
-.adm-service { display: grid; grid-template-columns: 86px 1fr; gap: 14px; padding: 14px; }
-.adm-service img { width: 86px; height: 86px; object-fit: cover; border-radius: 8px; }
-.adm-service .field { gap: 4px; }
-.adm-service .field + .field { margin-top: 8px; }
-.adm-service textarea { min-height: 64px; }
 
 @media (max-width: 900px) {
   .adm-bar-in { gap: 12px; }
@@ -107,5 +102,5 @@ label.btn { cursor: pointer; }
   .adm-brand span { display: none; }
   .adm-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
   .adm-row { grid-template-columns: 1fr; }
-  .adm-services { grid-template-columns: 1fr; }
+  .adm-tabs button { padding: 8px 10px; font-size: 13px; }
 }

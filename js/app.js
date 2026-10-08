@@ -62,6 +62,11 @@
         <a class="btn btn-sm" href="${waUrl(`Hi Khandelwal Group, I'd like to enquire about ${s.t}. Please share more details.`)}" target="_blank" rel="noopener">${WA_LOGO}Enquiry</a>
       </div>
     </article>`).join('');
+  // every service deleted in /edit: hide the section and its menu links
+  if (!SERVICES.length) {
+    $('#services').hidden = true;
+    $$('a[href="#services"]').forEach(a => { a.hidden = true; });
+  }
 
   /* ---------- shared swipe carousel (scroll-snap: one card at a time) ---------- */
   function carousel({ track, prev, next, dots, total }) {

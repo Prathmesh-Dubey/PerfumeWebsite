@@ -90,9 +90,6 @@ body { background: var(--ivory); font-size: 17px; }
   position: absolute; display: flex; background: var(--pearl); border: 1px solid var(--line); border-radius: 16px;
   box-shadow: 0 18px 40px rgba(29, 55, 47, .14);
 }
-.dk-float-a { left: -4%; top: 20%; flex-direction: column; padding: 14px 20px; gap: 2px; }
-.dk-float-a span { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--rose-deep); }
-.dk-float-a b { font-family: var(--serif); font-size: 30px; font-weight: 600; color: var(--ink); line-height: 1.1; }
 .dk-float-b { right: -2%; bottom: 14%; align-items: center; gap: 10px; padding: 12px 18px; font-size: 14px; color: var(--ink); border-radius: 999px; }
 .dk-float-b i { width: 9px; height: 9px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 4px rgba(47, 107, 79, .18); }
 
@@ -250,7 +247,6 @@ body { background: var(--ivory); font-size: 17px; }
   .dk-hero-in { gap: 24px; }
   .dk-stats li { padding: 0 20px; }
   .dk-stats b { font-size: 28px; }
-  .dk-float-a { left: -10px; }
   .dk-float-b { right: -10px; }
   .main > .about { grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); column-gap: 48px; }
   .about .tagline { font-size: 44px; }

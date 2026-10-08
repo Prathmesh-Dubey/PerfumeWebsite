@@ -9,7 +9,7 @@ window.SiteContent = (() => {
     if (!saved || typeof saved !== 'object') return D;
     return {
       texts: Object.assign({}, D.texts, saved.texts || {}),
-      services: Array.isArray(saved.services) && saved.services.length ? saved.services : D.services,
+      services: Array.isArray(saved.services) ? saved.services : D.services,
       products: Array.isArray(saved.products) ? saved.products : D.products,
       gallery: Array.isArray(saved.gallery) ? saved.gallery : D.gallery
     };
@@ -27,17 +27,13 @@ window.SiteContent = (() => {
     return pending;
   }
 
-  // fill every element marked data-k="<text key>" and data-calc="count|minPrice"
+  // fill every element marked data-k="<text key>" and data-calc="count"
   function applyTexts(c) {
     document.querySelectorAll('[data-k]').forEach(el => {
       const v = c.texts[el.dataset.k];
       if (typeof v === 'string' && v.trim()) el.textContent = v;
     });
-    const prices = c.products.map(p => +p.price).filter(n => n > 0);
-    const calc = {
-      count: String(c.products.length),
-      minPrice: prices.length ? Math.min(...prices).toLocaleString('en-IN') : ''
-    };
+    const calc = { count: String(c.products.length) };
     document.querySelectorAll('[data-calc]').forEach(el => {
       const v = calc[el.dataset.calc];
       if (v) el.textContent = v;

@@ -39,6 +39,7 @@
       </a>
       <nav class="adm-tabs" role="tablist" aria-label="Sections">
         <button type="button" role="tab" data-tab="products" aria-selected="true">Bottles <span id="nProducts"></span></button>
+        <button type="button" role="tab" data-tab="services" aria-selected="false">Services <span id="nServices"></span></button>
         <button type="button" role="tab" data-tab="gallery" aria-selected="false">Gallery <span id="nGallery"></span></button>
         <button type="button" role="tab" data-tab="texts" aria-selected="false">Texts</button>
       </nav>
@@ -64,6 +65,17 @@
       <div class="adm-grid" id="productList"></div>
     </section>
 
+    <!-- services -->
+    <section data-panel="services" hidden>
+      <div class="adm-head">
+        <div><h2>Services</h2><p class="adm-muted">Change service names, descriptions and photos, add new services, or delete ones you no longer offer. They show on the website in this order.</p></div>
+        <div class="adm-head-tools">
+          <button class="btn" type="button" id="addService">+ Add service</button>
+        </div>
+      </div>
+      <div class="adm-grid" id="serviceList"></div>
+    </section>
+
     <!-- gallery -->
     <section data-panel="gallery" hidden>
       <div class="adm-head">
@@ -80,8 +92,6 @@
     <section data-panel="texts" hidden>
       <div class="adm-head"><div><h2>Website texts</h2><p class="adm-muted">Leave a box empty to use the original text.</p></div></div>
       <div class="adm-texts" id="textList"></div>
-      <div class="adm-head adm-head-sub"><div><h2>Services</h2><p class="adm-muted">Titles and descriptions of the service cards.</p></div></div>
-      <div class="adm-services" id="serviceList"></div>
     </section>
   </main>
 </div>
