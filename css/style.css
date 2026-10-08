@@ -611,3 +611,6 @@ h1, h2, h3, h4, p { margin: 0; }
   color: #5E2F20;
   -webkit-text-stroke: .35px #5E2F20;
 }
+
+/* desktop-only pieces (styled in desktop.css) stay hidden on phones and tablets */
+.dk-nav, .dk-hero, .dk-strip, .dk-foot-nav { display: none; }

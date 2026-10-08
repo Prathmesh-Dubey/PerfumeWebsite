@@ -38,16 +38,19 @@
   <p>© <span id="yr">2026</span> Khandelwal Group · Kondhwa Budruk, Pune, Maharashtra 411048</p>
 </footer>
 
-<script src="js/gallery-data.js"></script>
+<script src="js/content-defaults.js"></script>
+<script src="js/site-content.js"></script>
 <script src="js/viewer.js"></script>
 <script>
-  (function () {
-    var G = window.GALLERY || [];
+  (async function () {
+    var C = await window.SiteContent.load();
+    var G = C.gallery;
     var grid = document.getElementById('gGrid');
     function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
     grid.innerHTML = G.map(function (g, i) {
-      return '<button type="button" data-i="' + i + '" aria-label="Zoom photo ' + (i + 1) + ' of ' + G.length + '"' + (g.bg ? ' style="background:' + g.bg + '"' : '') + '>' +
-        '<img src="' + g.thumb + '" alt="' + esc(g.alt) + '" loading="' + (i < 8 ? 'eager' : 'lazy') + '" width="480" height="640" style="object-fit:' + g.fit + '">' +
+      var bg = /^#[0-9a-f]{3,8}$/i.test(g.bg || '') ? ' style="background:' + g.bg + '"' : '';
+      return '<button type="button" data-i="' + i + '" aria-label="Zoom photo ' + (i + 1) + ' of ' + G.length + '"' + bg + '>' +
+        '<img src="' + esc(g.thumb) + '" alt="' + esc(g.alt) + '" loading="' + (i < 8 ? 'eager' : 'lazy') + '" width="480" height="640" style="object-fit:' + (g.fit === 'contain' ? 'contain' : 'cover') + '">' +
         '</button>';
     }).join('');
     document.getElementById('gCount').textContent = G.length + ' photos · tap any photo to zoom';

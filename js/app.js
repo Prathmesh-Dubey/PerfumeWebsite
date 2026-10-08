@@ -1,4 +1,4 @@
-(() => {
+(async () => {
   'use strict';
 
   /* ---------- settings: change business details here ---------- */
@@ -33,33 +33,16 @@
     toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
   }
 
-  /* ---------- data ---------- */
-  const SERVICES = [
-    { t: 'Corporate Gifting', d: 'Premium fragrance gifts for clients, teams and partners.', img: 'g03' },
-    { t: 'Customized Fragrances', d: 'Scents tailored to your brand, occasion or personal taste.', img: 'g16' },
-    { t: 'Private Label & OEM', d: 'Your brand name on our fragrances, made to your specification.', img: 'g10' },
-    { t: 'Bulk Orders & Pan India Delivery', d: 'Large-volume orders supplied and delivered across India.', img: 'g24' },
-    { t: 'Wedding & Party Favours', d: 'Elegant fragrance favours for weddings, parties and celebrations.', img: 'g05' },
-    { t: 'Festive & Return Gifts', d: 'Thoughtful festive gifts and return gifts guests remember.', img: 'g17' },
-    { t: 'Hotel & Hospitality', d: 'Signature fragrances for hotels and hospitality spaces.', img: 'g15' },
-    { t: 'Events & Brand Promotions', d: 'Fragrances for exhibitions, events and promotional gifting.', img: 'g23' }
-  ];
-
-  // [code, size ml, gender (F/M/U), price in rupees] — index matches assets/products/pNN.jpg and assets/catalogue/cNN.jpg
-  const PRODUCTS = [
-    ['GA2302', 50, 'F', 599], ['S-7350', 50, 'F', 599], ['IP 2302', 50, 'F', 599], ['S7060', 100, 'F', 699],
-    ['NR8181', 100, 'M', 699], ['DE 2302', 50, 'F', 599], ['DE2302', 100, 'F', 699], ['NR2210', 100, 'F', 699],
-    ['CR2302', 100, 'F', 699], ['NQ8324', 50, 'F', 599], ['NR4504', 50, 'M', 599], ['BL 2302', 100, 'F', 699],
-    ['K3557', 100, 'M', 699], ['S6222', 100, 'F', 699], ['KW2302', 100, 'F', 699], ['NR8974', 100, 'M', 699],
-    ['NQ8324', 50, 'F', 499], ['YS2308', 50, 'F', 499], ['JP2302', 100, 'U', 699], ['NR1810', 50, 'F', 599],
-    ['NR9127', 100, 'M', 699], ['BR2302', 100, 'F', 600], ['HI2302', 100, 'F', 699], ['NR9127', 50, 'M', 400],
-    ['NR6282', 50, 'M', 499], ['BN2302', 50, 'M', 500], ['2202', 50, 'F', 500], ['K7887', 50, 'F', 500]
-  ].map((p, i) => ({ i, code: p[0], size: p[1], g: p[2], price: p[3] }));
+  /* ---------- data: live content from /edit (MongoDB), falling back to js/content-defaults.js ---------- */
+  const CONTENT = await window.SiteContent.load();
+  window.SiteContent.applyTexts(CONTENT);
+  const SERVICES = CONTENT.services;
+  const PRODUCTS = CONTENT.products.map((p, i) => ({ ...p, i }));
   const GENDER = { F: 'Women', M: 'Men', U: 'Unisex' };
   const pad = n => String(n).padStart(2, '0');
   const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 
-  const GALLERY = window.GALLERY || [];
+  const GALLERY = CONTENT.gallery;
 
   const TESTIMONIALS = [
     { n: 'Prathmesh', c: '#E4B5C2', q: 'Beautiful presentation and a fragrance that lasts all day. Ordering over WhatsApp was quick and easy.' },
@@ -71,7 +54,7 @@
   /* ---------- services ---------- */
   $('#servicesGrid').innerHTML = SERVICES.map(s => `
     <article class="card service">
-      <div class="ph"><img src="assets/gallery/thumb/${s.img}.jpg" alt="" loading="lazy" width="480" height="640"></div>
+      <div class="ph"><img src="${esc(s.img)}" alt="" loading="lazy" width="480" height="640"></div>
       <div class="body">
         <h3>${esc(s.t)}</h3>
         <p>${esc(s.d)}</p>
@@ -111,8 +94,8 @@
     const shown = GALLERY.slice(0, CFG.carouselPhotos);
     track.innerHTML = shown.map((g, i) => `
       <div class="car-slide" role="group" aria-roledescription="slide" aria-label="Photo ${i + 1} of ${GALLERY.length}">
-        <button type="button" class="car-card" data-i="${i}" style="${g.bg ? `background:${g.bg}` : ''}" aria-label="Zoom photo ${i + 1}">
-          <img src="${g.full}" alt="${esc(g.alt)}" style="object-fit:${g.fit}" ${i < 2 ? '' : 'loading="lazy"'} draggable="false">
+        <button type="button" class="car-card" data-i="${i}" style="${/^#[0-9a-f]{3,8}$/i.test(g.bg || '') ? `background:${g.bg}` : ''}" aria-label="Zoom photo ${i + 1}">
+          <img src="${esc(g.full)}" alt="${esc(g.alt)}" style="object-fit:${g.fit === 'contain' ? 'contain' : 'cover'}" ${i < 2 ? '' : 'loading="lazy"'} draggable="false">
         </button>
       </div>`).join('') + `
       <div class="car-slide" role="group" aria-roledescription="slide" aria-label="See all photos">
@@ -148,7 +131,7 @@
       grid.innerHTML = shown.map(p => `
         <article class="card product">
           <button class="ph" type="button" data-i="${p.i}" aria-label="View details for Velunia ${esc(p.code)}">
-            <img src="assets/products/p${pad(p.i)}.jpg" alt="Velunia Signature ${esc(p.code)} perfume bottle" loading="lazy" width="480" height="720">
+            <img src="${esc(p.img)}" alt="Velunia Signature ${esc(p.code)} perfume bottle" loading="lazy" width="480" height="720">
             <span class="ribbon">${p.size} ml</span>
           </button>
           <div class="body">
@@ -176,7 +159,7 @@
       const b = e.target.closest('.ph[data-i]'); if (!b) return;
       const all = list();
       const items = all.map(p => ({
-        src: `assets/catalogue/c${pad(p.i)}.jpg`,
+        src: p.detail || p.img,
         alt: `Velunia Signature ${p.code} product details`,
         text: `Velunia ${p.code} · ${p.size} ml · ${GENDER[p.g]} · ₹${p.price}`,
         action: enquire(p)

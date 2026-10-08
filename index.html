@@ -15,6 +15,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Jost:wght@400;500&family=Pinyon+Script&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/desktop.css" media="(min-width: 1024px)">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -63,12 +64,61 @@
   </defs>
 </svg>
 
+<!-- ===== desktop only: top navigation ===== -->
+<header class="dk-nav" id="dkNav">
+  <div class="dk-wrap dk-nav-in">
+    <a class="dk-logo" href="#top" aria-label="Khandelwal Group home">
+      <img src="assets/brand/logo.jpg" alt="" width="44" height="44">
+      <span><b>Khandelwal Group</b><i>Velunia Signature</i></span>
+    </a>
+    <nav class="dk-links" aria-label="Main">
+      <a href="#about">About</a>
+      <a href="#services">Services</a>
+      <a href="#gallery">Gallery</a>
+      <a href="#products">Products</a>
+      <a href="#testimonials">Reviews</a>
+      <a href="#visit">Visit</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <a class="btn dk-cta" href="https://wa.me/919371814999" target="_blank" rel="noopener"><img class="wa-ic" src="assets/brand/whatsapp.png" alt="" width="20" height="20">WhatsApp us</a>
+  </div>
+</header>
+
+<!-- ===== desktop only: jumbotron ===== -->
+<section class="dk-hero" id="top" aria-label="Welcome">
+  <div class="dk-wrap dk-hero-in">
+    <div class="dk-hero-copy">
+      <span class="dk-eyebrow" data-k="heroEyebrow">Perfumes &amp; Fragrances · Pune</span>
+      <h2 class="dk-title"><span data-k="heroTitle1">Crafting scents.</span><br><em data-k="heroTitle2">Creating impressions.</em></h2>
+      <p class="dk-lead" data-k="heroLead">Khandelwal Group is a Pune-based manufacturer and supplier of premium eau de parfum. Under our signature label, Velunia, we make long-lasting fragrances for women, men and everyone in between, with corporate gifting, private label and bulk orders across India.</p>
+      <div class="dk-actions">
+        <a class="btn dk-btn-lg" href="#products">Explore fragrances</a>
+        <a class="btn btn-ghost dk-btn-lg" href="#inquiries">Send an inquiry</a>
+      </div>
+      <ul class="dk-stats" aria-label="At a glance">
+        <li><b data-calc="count">28</b><span>Signature fragrances</span></li>
+        <li><b>50 &amp; 100 ml</b><span>Bottle sizes</span></li>
+        <li><b>Pan India</b><span>Bulk &amp; gifting</span></li>
+      </ul>
+    </div>
+    <div class="dk-hero-media">
+      <div class="dk-arch">
+        <video id="dkVideo" src="img/video_desktop.mp4" poster="assets/brand/video-poster.jpg" muted loop playsinline preload="none" aria-label="Velunia Signature brand video"></video>
+        <button class="dk-vbtn" id="dkMute" type="button" aria-label="Turn sound on"><svg class="ic"><use href="#i-mute"/></svg></button>
+      </div>
+      <div class="dk-float dk-float-a"><span>Eau de parfum</span><b>from ₹<span data-calc="minPrice">400</span></b></div>
+      <div class="dk-float dk-float-b"><i></i><span>Open daily · 9 AM – 5 PM</span></div>
+    </div>
+  </div>
+</section>
+<div class="dk-strip" aria-hidden="true"><div class="dk-wrap"><span>Premium quality</span><span>Long lasting</span><span>Custom made</span><span>Private label</span><span>Pan India delivery</span></div></div>
+
 <div class="shell">
 
   <!-- ===== left column on desktop: video + profile ===== -->
   <aside class="aside">
     <section class="hero" aria-label="Velunia Signature brand video">
-      <video id="heroVideo" src="img/video.mp4" poster="assets/brand/video-poster.jpg" muted loop playsinline preload="metadata"></video>
+      <video id="heroVideo" src="img/video_desktop.mp4" poster="assets/brand/video-poster.jpg" muted loop playsinline preload="metadata"></video>
       <span class="hero-tag">Velunia Signature</span>
       <div class="hero-controls">
         <button class="hero-btn" id="vPlay" type="button" aria-label="Pause video"><svg class="ic"><use href="#i-pause"/></svg></button>
@@ -83,7 +133,7 @@
         <div class="brand">
           <h1>Khandelwal Group</h1>
           <div class="script">Velunia Signature</div>
-          <div class="sub">Perfumes &amp; Fragrances · Pune</div>
+          <div class="sub" data-k="heroEyebrow">Perfumes &amp; Fragrances · Pune</div>
         </div>
       </div>
       <hr class="rule">
@@ -108,11 +158,12 @@
   <main class="main">
 
     <section class="card about" id="about">
-      <p>Khandelwal Group is a Pune-based manufacturer and supplier of premium fragrances and perfumes. Under our signature label, Velunia, we craft long-lasting eau de parfums for women, men and every taste in between, and supply corporate gifting, private label and bulk orders across India.</p>
-      <p class="tagline">Crafting scents. Creating impressions.</p>
+      <p data-k="aboutText">Khandelwal Group is a Pune-based manufacturer and supplier of premium fragrances and perfumes. Under our signature label, Velunia, we craft long-lasting eau de parfums for women, men and every taste in between, and supply corporate gifting, private label and bulk orders across India.</p>
+      <p class="tagline" data-k="tagline">Crafting scents. Creating impressions.</p>
       <div class="values"><span>Premium quality</span><span>Long lasting</span><span>Custom made</span></div>
     </section>
 
+<div class="duo">
     <section id="contact" aria-labelledby="h-contact">
       <div class="section-title"><h2 id="h-contact">Get in Touch</h2><div class="orn"><i></i></div></div>
       <div class="tiles">
@@ -142,9 +193,10 @@
         </div>
       </div>
     </section>
+</div>
 
     <section id="services" aria-labelledby="h-services">
-      <div class="section-title"><h2 id="h-services">Our Services</h2><p>Fragrance solutions for businesses, events and celebrations.</p><div class="orn"><i></i></div></div>
+      <div class="section-title"><h2 id="h-services">Our Services</h2><p data-k="servicesIntro">Fragrance solutions for businesses, events and celebrations.</p><div class="orn"><i></i></div></div>
       <div class="cards services" id="servicesGrid"></div>
     </section>
 
@@ -161,7 +213,7 @@
     </section>
 
     <section id="products" aria-labelledby="h-products">
-      <div class="section-title"><h2 id="h-products">Products</h2><p>Velunia Signature eau de parfum. Tap a bottle for the full details.</p><div class="orn"><i></i></div></div>
+      <div class="section-title"><h2 id="h-products">Products</h2><p data-k="productsIntro">Velunia Signature eau de parfum. Tap a bottle for the full details.</p><div class="orn"><i></i></div></div>
       <div class="chips" id="chips" role="group" aria-label="Filter fragrances"></div>
       <div class="cards products" id="productGrid"></div>
       <p class="count" id="productCount"></p>
@@ -224,7 +276,7 @@
       <form class="card form" id="inqForm" novalidate style="max-width:640px;margin:0 auto">
         <div class="row">
           <div class="field"><label for="iName">Your name</label><input id="iName" name="name" autocomplete="name" placeholder="Full name" required><span class="err"></span></div>
-          <div class="field"><label for="iPhone">Phone</label><input id="iPhone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="98765 43210" required><span class="err"></span></div>
+          <div class="field"><label for="iPhone">Phone</label><input id="iPhone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="phone number" required><span class="err"></span></div>
         </div>
         <div class="field"><label for="iEmail">Email <span style="color:var(--sage)">(optional)</span></label><input id="iEmail" name="email" type="email" autocomplete="email" placeholder="name@example.com"><span class="err"></span></div>
         <div class="field"><label for="iMsg">Message</label><textarea id="iMsg" name="message" placeholder="Tell us about your requirement, e.g. corporate gifting for 100 pieces" required></textarea><span class="err"></span></div>
@@ -244,9 +296,23 @@
     
 
     <footer class="footer">
-      <div class="script">Velunia Signature</div>
-      <p>Fragrances that speak, impressions that last.</p>
-      <p>© <span id="yr">2026</span> Khandelwal Group · Kondhwa Budruk, Pune, Maharashtra 411048</p>
+      <div class="dk-foot-cols">
+        <div>
+          <div class="script">Velunia Signature</div>
+          <p data-k="footerTagline">Fragrances that speak, impressions that last.</p>
+        </div>
+        <div class="dk-foot-nav">
+          <h4>Explore</h4>
+          <a href="#about">About</a><a href="#services">Services</a><a href="#products">Products</a><a href="#gallery">Gallery</a><a href="blog.html">Blog</a>
+        </div>
+        <div class="dk-foot-nav">
+          <h4>Contact</h4>
+          <a href="tel:+919371814999">+91 93718 14999</a>
+          <a href="mailto:khandelwalgroups0601@gmail.com">khandelwalgroups0601@gmail.com</a>
+          <a href="https://wa.me/919371814999" target="_blank" rel="noopener">WhatsApp</a>
+        </div>
+      </div>
+      <p class="dk-copy">© <span id="yr">2026</span> Khandelwal Group · Kondhwa Budruk, Pune, Maharashtra 411048</p>
     </footer>
   </main>
 </div>
@@ -263,8 +329,10 @@
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <noscript><p style="text-align:center;padding:16px">Please enable JavaScript to browse products and send enquiries. You can always WhatsApp us on +91 93718 14999.</p></noscript>
-<script src="js/gallery-data.js"></script>
+<script src="js/content-defaults.js"></script>
+<script src="js/site-content.js"></script>
 <script src="js/viewer.js"></script>
 <script src="js/app.js"></script>
+<script src="js/desktop.js"></script>
 </body>
 </html>

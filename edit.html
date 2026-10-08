@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Website Editor | Khandelwal Group</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#FBF7F2">
+  <link rel="icon" type="image/png" href="assets/brand/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Jost:wght@400;500&family=Pinyon+Script&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body class="adm">
+
+<!-- ===== login ===== -->
+<main class="adm-login" id="loginView" hidden>
+  <form class="card adm-login-card" id="loginForm" novalidate>
+    <img src="assets/brand/logo.jpg" alt="" width="84" height="84" class="adm-login-logo">
+    <h1>Website Editor</h1>
+    <p class="adm-muted">Khandelwal Group · Velunia Signature</p>
+    <div class="field"><label for="lPhone">Mobile number</label><input id="lPhone" name="phone" type="tel" inputmode="tel" autocomplete="username" placeholder="10-digit mobile number" required></div>
+    <div class="field"><label for="lPass">Password</label><input id="lPass" name="password" type="password" autocomplete="current-password" required></div>
+    <p class="adm-error" id="loginError" role="alert" hidden></p>
+    <button class="btn btn-block" type="submit" id="loginBtn">Log in</button>
+    <a class="adm-back" href="/">← Back to website</a>
+  </form>
+</main>
+
+<!-- ===== editor ===== -->
+<div class="adm-app" id="appView" hidden>
+  <header class="adm-bar">
+    <div class="adm-bar-in">
+      <a class="adm-brand" href="/" target="_blank" rel="noopener">
+        <img src="assets/brand/logo.jpg" alt="" width="40" height="40">
+        <span><b>Website Editor</b><i>Velunia Signature</i></span>
+      </a>
+      <nav class="adm-tabs" role="tablist" aria-label="Sections">
+        <button type="button" role="tab" data-tab="products" aria-selected="true">Bottles <span id="nProducts"></span></button>
+        <button type="button" role="tab" data-tab="gallery" aria-selected="false">Gallery <span id="nGallery"></span></button>
+        <button type="button" role="tab" data-tab="texts" aria-selected="false">Texts</button>
+      </nav>
+      <div class="adm-bar-actions">
+        <span class="adm-status" id="saveStatus" role="status">All changes saved</span>
+        <a class="btn btn-sm btn-ghost" href="/" target="_blank" rel="noopener">View site</a>
+        <button class="btn btn-sm" type="button" id="saveBtn" disabled>Save changes</button>
+        <button class="btn btn-sm btn-ghost" type="button" id="logoutBtn">Log out</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="adm-main">
+    <!-- bottles -->
+    <section data-panel="products">
+      <div class="adm-head">
+        <div><h2>Bottles &amp; prices</h2><p class="adm-muted">Change names, sizes and prices, replace photos, or add new bottles. The first bottles here show first on the website.</p></div>
+        <div class="adm-head-tools">
+          <input type="search" id="pSearch" placeholder="Search by name/code" aria-label="Search bottles">
+          <button class="btn" type="button" id="addProduct">+ Add bottle</button>
+        </div>
+      </div>
+      <div class="adm-grid" id="productList"></div>
+    </section>
+
+    <!-- gallery -->
+    <section data-panel="gallery" hidden>
+      <div class="adm-head">
+        <div><h2>Gallery</h2><p class="adm-muted">The first 10 photos appear on the home page; all of them appear on the Gallery page.</p></div>
+        <div class="adm-head-tools">
+          <label class="btn" for="galleryFiles">+ Add photos</label>
+          <input type="file" id="galleryFiles" accept="image/*" multiple hidden>
+        </div>
+      </div>
+      <div class="adm-grid adm-grid-gal" id="galleryList"></div>
+    </section>
+
+    <!-- texts -->
+    <section data-panel="texts" hidden>
+      <div class="adm-head"><div><h2>Website texts</h2><p class="adm-muted">Leave a box empty to use the original text.</p></div></div>
+      <div class="adm-texts" id="textList"></div>
+      <div class="adm-head adm-head-sub"><div><h2>Services</h2><p class="adm-muted">Titles and descriptions of the service cards.</p></div></div>
+      <div class="adm-services" id="serviceList"></div>
+    </section>
+  </main>
+</div>
+
+<div class="adm-loading" id="loadingView"><span></span></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="js/content-defaults.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>
