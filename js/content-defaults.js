@@ -58,5 +58,19 @@ window.SITE_DEFAULTS = (() => {
     bg: x.bg || ''
   }));
 
-  return { texts, services, products, gallery };
+  const categories = [{ id: 'F', name: 'Women' }, { id: 'M', name: 'Men' }, { id: 'U', name: 'Unisex' }];
+
+  const testimonials = [
+    { n: 'Prathmesh', c: '#E4B5C2', q: 'Beautiful presentation and a fragrance that lasts all day. Ordering over WhatsApp was quick and easy.' },
+    { n: 'Shail', c: '#8FB09F', q: 'Great quality for the price. The scent stays fresh for hours and the bottle looks even better in person.' },
+    { n: 'Akshata', c: '#D9A98F', q: 'I loved the floral range. It feels premium, and the team helped me choose the right one for gifting.' }
+  ];
+
+  // index = day of week (0 = Sunday ... 6 = Saturday); times are 24-hour "HH:MM"
+  const hours = [0, 1, 2, 3, 4, 5, 6].map(d => ({ on: d >= 1 && d <= 5, from: '09:00', to: '17:00' }));
+
+  // wa = WhatsApp number, country code first, digits only
+  const settings = { wa: '919371814999' };
+
+  return { texts, services, products, gallery, categories, testimonials, hours, settings };
 })();

@@ -44,6 +44,7 @@
 <script>
   (async function () {
     var C = await window.SiteContent.load();
+    window.SiteContent.applyTexts(C);
     var G = C.gallery;
     var grid = document.getElementById('gGrid');
     function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }

@@ -3,11 +3,8 @@
 
   /* ---------- settings: change business details here ---------- */
   const CFG = {
-    wa: '919371814999',            // WhatsApp number, country code first, digits only
+    wa: '919371814999',            // WhatsApp number (changed from /edit), country code first, digits only
     tz: 'Asia/Kolkata',
-    openHour: 9,                   // 9 AM
-    closeHour: 17,                 // 5 PM
-    openDays: [1, 2, 3, 4, 5],     // Monday to Friday (0 = Sunday, 6 = Saturday)
     initialProducts: 8,
     carouselPhotos: 10             // photos shown in the swipe carousel; the rest are on gallery.html
   };
@@ -37,19 +34,19 @@
   /* ---------- data: live content from /edit (MongoDB), falling back to js/content-defaults.js ---------- */
   const CONTENT = await window.SiteContent.load();
   window.SiteContent.applyTexts(CONTENT);
+  CFG.wa = String(CONTENT.settings.wa);
+  const HOURS = CONTENT.hours;        // [Sun..Sat] of { on, from, to }, changed from /edit
   const SERVICES = CONTENT.services;
   const PRODUCTS = CONTENT.products.map((p, i) => ({ ...p, i }));
-  const GENDER = { F: 'Women', M: 'Men', U: 'Unisex' };
+  const CATEGORIES = CONTENT.categories;
+  const GENDER = Object.fromEntries(CATEGORIES.map(c => [c.id, c.name]));
   const pad = n => String(n).padStart(2, '0');
   const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 
   const GALLERY = CONTENT.gallery;
 
-  const TESTIMONIALS = [
-    { n: 'Prathmesh', c: '#E4B5C2', q: 'Beautiful presentation and a fragrance that lasts all day. Ordering over WhatsApp was quick and easy.' },
-    { n: 'Shail', c: '#8FB09F', q: 'Great quality for the price. The scent stays fresh for hours and the bottle looks even better in person.' },
-    { n: 'Akshata', c: '#D9A98F', q: 'I loved the floral range. It feels premium, and the team helped me choose the right one for gifting.' }
-  ];
+  const AVATAR_COLORS = ['#E4B5C2', '#8FB09F', '#D9A98F', '#B9A7D6', '#9CC0D6', '#E3C98F'];
+  const TESTIMONIALS = CONTENT.testimonials.map((t, i) => ({ ...t, c: t.c || AVATAR_COLORS[i % AVATAR_COLORS.length] }));
 
 
   /* ---------- services ---------- */
@@ -122,9 +119,10 @@
   (() => {
     const grid = $('#productGrid'), chips = $('#chips'), count = $('#productCount'), more = $('#productMore');
     let filter = 'all', expanded = false;
-    const counts = { all: PRODUCTS.length, F: 0, M: 0, U: 0 };
-    PRODUCTS.forEach(p => counts[p.g]++);
-    const FILTERS = [['all', 'All'], ['F', 'Women'], ['M', 'Men'], ['U', 'Unisex']].filter(f => counts[f[0]] > 0);
+    const counts = { all: PRODUCTS.length };
+    CATEGORIES.forEach(c => { counts[c.id] = 0; });
+    PRODUCTS.forEach(p => { counts[p.g] = (counts[p.g] || 0) + 1; });
+    const FILTERS = [['all', 'All'], ...CATEGORIES.map(c => [c.id, c.name])].filter(f => counts[f[0]] > 0);
 
     chips.innerHTML = FILTERS.map(f => `<button type="button" class="chip" data-f="${f[0]}" aria-pressed="${f[0] === filter}">${f[1]} (${counts[f[0]]})</button>`).join('');
 
@@ -142,7 +140,7 @@
           </button>
           <div class="body">
             <h3>Velunia ${esc(p.code)}</h3>
-            <p class="meta">Eau de parfum · ${GENDER[p.g]}</p>
+            <p class="meta">Eau de parfum · ${esc(GENDER[p.g] || '')}</p>
             <div class="price">₹${p.price.toLocaleString('en-IN')}</div>
             <a class="btn btn-sm" href="${enquire(p)}" target="_blank" rel="noopener">${WA_LOGO}Enquire now</a>
           </div>
@@ -167,7 +165,7 @@
       const items = all.map(p => ({
         src: p.detail || p.img,
         alt: `Velunia Signature ${p.code} product details`,
-        text: `Velunia ${p.code} · ${p.size} ml · ${GENDER[p.g]} · ₹${p.price}`,
+        text: `Velunia ${p.code} · ${p.size} ml · ${GENDER[p.g] || ''} · ₹${p.price}`,
         action: enquire(p)
       }));
       ZoomViewer.open(items, all.findIndex(p => p.i === +b.dataset.i));
@@ -177,6 +175,12 @@
 
   /* ---------- testimonials (swipe carousel, same as the gallery) ---------- */
   (() => {
+    // every testimonial deleted in /edit: hide the section and its menu links
+    if (!TESTIMONIALS.length) {
+      $('#testimonials').hidden = true;
+      $$('a[href="#testimonials"]').forEach(a => { a.hidden = true; });
+      return;
+    }
     const track = $('#testiTrack');
     track.innerHTML = TESTIMONIALS.map((t, i) => `
       <div class="car-slide" role="group" aria-roledescription="slide" aria-label="Testimonial ${i + 1} of ${TESTIMONIALS.length}">
@@ -194,21 +198,41 @@
   function istNow() {
     return new Date(new Date().toLocaleString('en-US', { timeZone: CFG.tz }));
   }
-  const fmtHour = h => `${((h + 11) % 12) + 1}:00 ${h < 12 ? 'AM' : 'PM'}`;
-  const isOpenDay = d => CFG.openDays.includes(d);
+  const toMin = t => { const [h, m] = t.split(':').map(Number); return h * 60 + m; }; // "17:30" -> 1050
+  const fmtTime = t => { const m = toMin(t), h = Math.floor(m / 60); return `${((h + 11) % 12) + 1}:${String(m % 60).padStart(2, '0')} ${h < 12 ? 'AM' : 'PM'}`; };
+  const isOpenDay = d => HOURS[d].on;
   const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const WEEK = [1, 2, 3, 4, 5, 6, 0]; // Monday first
+
+  // the "Business Hours" card, the badge on the hero picture and the appointment hint
+  (() => {
+    $('#hoursList').innerHTML = WEEK.map(d => `<li data-d="${d}"${HOURS[d].on ? '' : ' class="off"'}><span>${DAY_NAMES[d]}</span><span>${HOURS[d].on ? `${fmtTime(HOURS[d].from)} – ${fmtTime(HOURS[d].to)}` : 'Closed'}</span></li>`).join('');
+    const openDays = WEEK.filter(isOpenDay);
+    const badge = $('#hoursBadge'), hint = $('#apptHint');
+    const first = openDays.length ? HOURS[openDays[0]] : null;
+    const same = first && openDays.every(d => HOURS[d].from === first.from && HOURS[d].to === first.to);
+    const short = t => fmtTime(t).replace(':00', '');
+    const three = d => DAY_NAMES[d].slice(0, 3);
+    const run = openDays.length > 1 && openDays.every((d, i) => i === 0 || WEEK.indexOf(d) === WEEK.indexOf(openDays[i - 1]) + 1);
+    const days = !openDays.length ? '' : openDays.length === 1 ? three(openDays[0])
+      : run ? `${three(openDays[0])} – ${three(openDays[openDays.length - 1])}` : openDays.map(three).join(', ');
+    if (badge) badge.textContent = !first ? 'Currently closed' : same ? `${days} · ${short(first.from)} – ${short(first.to)}` : `Open ${days}`;
+    if (hint) hint.textContent = !first ? 'We are not taking appointments right now.' : `Pick a day we're open (${days}) and a time. We'll confirm on WhatsApp.`;
+  })();
+
   function updateStatus() {
     const n = istNow(), day = n.getDay(), mins = n.getHours() * 60 + n.getMinutes();
     $$('#hoursList li').forEach(li => li.classList.toggle('today', +li.dataset.d === day));
-    const s = $('#openStatus'), label = $('span', s);
-    const isOpen = isOpenDay(day) && mins >= CFG.openHour * 60 && mins < CFG.closeHour * 60;
+    const s = $('#openStatus'), label = $('span', s), h = HOURS[day];
+    const isOpen = h.on && mins >= toMin(h.from) && mins < toMin(h.to);
     s.classList.toggle('open', isOpen); s.classList.toggle('closed', !isOpen);
-    if (isOpen) { label.textContent = `Open now · closes at ${fmtHour(CFG.closeHour)}`; return; }
-    if (isOpenDay(day) && mins < CFG.openHour * 60) { label.textContent = `Closed · opens today at ${fmtHour(CFG.openHour)}`; return; }
+    if (isOpen) { label.textContent = `Open now · closes at ${fmtTime(h.to)}`; return; }
+    if (h.on && mins < toMin(h.from)) { label.textContent = `Closed · opens today at ${fmtTime(h.from)}`; return; }
     let k = 1;
-    while (k < 7 && !isOpenDay((day + k) % 7)) k++;
-    const when = k === 1 ? 'tomorrow' : DAY_NAMES[(day + k) % 7];
-    label.textContent = `Closed · opens ${when} at ${fmtHour(CFG.openHour)}`;
+    while (k <= 7 && !isOpenDay((day + k) % 7)) k++;
+    if (k > 7) { label.textContent = 'Currently closed'; return; }
+    const nd = (day + k) % 7;
+    label.textContent = `Closed · opens ${k === 1 ? 'tomorrow' : DAY_NAMES[nd]} at ${fmtTime(HOURS[nd].from)}`;
   }
   updateStatus(); setInterval(updateStatus, 60000);
 
@@ -244,7 +268,7 @@
       const [y, m, d] = date.value.split('-').map(Number);
       return new Date(y, m - 1, d).getDay();
     };
-    const closedDayMsg = () => `We're closed on Saturdays and Sundays. Please pick a weekday.`;
+    const closedDayMsg = () => { const d = chosenDay(); return `We're closed on ${d === null ? 'that day' : DAY_NAMES[d] + 's'}. Please pick a day we're open.`; };
 
     function buildTimes() {
       const n = istNow(), today = date.value === iso(n);
@@ -259,7 +283,9 @@
       }
       time.disabled = false;
       let html = '<option value="">Select a time</option>';
-      for (let m = CFG.openHour * 60; m < CFG.closeHour * 60; m += 30) {
+      // no date chosen yet: show today's slots, or the first open day's
+      const hd = (day === null ? [HOURS[n.getDay()], ...HOURS] : [HOURS[day]]).find(x => x.on);
+      for (let m = hd ? toMin(hd.from) : 0; m < (hd ? toMin(hd.to) : 0); m += 30) {
         const past = today && m <= nowMin;
         html += `<option value="${label(m)}"${past ? ' disabled' : ''}>${label(m)}${past ? ' (passed)' : ''}</option>`;
       }

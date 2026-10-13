@@ -26,6 +26,12 @@ const list = (v, max, name) => {
   return v;
 };
 
+const hhmm = (v, name) => {
+  if (typeof v !== 'string' || !/^([01]\d|2[0-3]):[0-5]\d$/.test(v)) throw bad(`${name}: use a time like 09:00`);
+  return v;
+};
+const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
 function validate(input) {
   if (!input || typeof input !== 'object') throw bad('Missing content');
 
@@ -39,10 +45,21 @@ function validate(input) {
     img: img(s.img, `Service ${i + 1}`)
   }));
 
+  const categories = list(input.categories || [{ id: 'F', name: 'Women' }, { id: 'M', name: 'Men' }, { id: 'U', name: 'Unisex' }], 30, 'categories').map((c, i) => {
+    const id = String((c && c.id) || '');
+    if (!/^[\w-]{1,16}$/.test(id)) throw bad(`Category ${i + 1}: invalid id`);
+    const name = str((c && c.name) || '', 30, `Category ${i + 1} name`);
+    if (!name) throw bad(`Category ${i + 1} needs a name`);
+    return { id, name };
+  });
+  if (!categories.length) throw bad('Keep at least one category');
+  if (new Set(categories.map(c => c.id)).size !== categories.length) throw bad('Duplicate category');
+  if (new Set(categories.map(c => c.name.toLowerCase())).size !== categories.length) throw bad('Two categories have the same name');
+
   const products = list(input.products || [], 500, 'bottles').map((p, i) => {
     const n = `Bottle ${i + 1}`;
     const g = String(p.g || '');
-    if (!['F', 'M', 'U'].includes(g)) throw bad(`${n}: choose Women, Men or Unisex`);
+    if (!categories.some(c => c.id === g)) throw bad(`${n}: choose a category`);
     const code = str(p.code, 40, `${n} name/code`);
     if (!code) throw bad(`${n}: name/code is required`);
     return {
@@ -63,7 +80,30 @@ function validate(input) {
     bg: /^#[0-9a-f]{3,8}$/i.test(g.bg || '') ? g.bg : ''
   }));
 
-  return { texts, services, products, gallery };
+  const testimonials = list(input.testimonials || [], 30, 'testimonials').map((t, i) => {
+    const q = str(t.q || '', 500, `Testimonial ${i + 1} text`);
+    if (!q) throw bad(`Testimonial ${i + 1} needs some text`);
+    return {
+      n: str(t.n || '', 60, `Testimonial ${i + 1} name`) || 'Customer',
+      q,
+      c: /^#[0-9a-f]{6}$/i.test(t.c || '') ? t.c : ''
+    };
+  });
+
+  const h = list(input.hours || [], 7, 'days');
+  if (h.length !== 7) throw bad('Opening hours must cover all 7 days');
+  const hours = h.map((d, i) => {
+    const on = !!d.on;
+    const from = hhmm(d.from, `${DAYS[i]} opening time`), to = hhmm(d.to, `${DAYS[i]} closing time`);
+    if (on && to <= from) throw bad(`${DAYS[i]}: closing time must be after opening time`);
+    return { on, from, to };
+  });
+
+  const s = input.settings || {};
+  const wa = String(s.wa || '').replace(/\D/g, '');
+  if (!/^[1-9]\d{9,14}$/.test(wa)) throw bad('WhatsApp number must be 10 to 15 digits including the country code');
+
+  return { texts, services, products, gallery, categories, testimonials, hours, settings: { wa } };
 }
 
 // ids of uploaded images (/api/img?id=...) used anywhere in the content

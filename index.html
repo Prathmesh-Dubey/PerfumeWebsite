@@ -106,7 +106,7 @@
         <video id="dkVideo" src="img/video_desktop.mp4" poster="assets/brand/video-poster.jpg" muted loop playsinline preload="none" aria-label="Velunia Signature brand video"></video>
         <button class="dk-vbtn" id="dkMute" type="button" aria-label="Turn sound on"><svg class="ic"><use href="#i-mute"/></svg></button>
       </div>
-      <div class="dk-float dk-float-b"><i></i><span>Mon – Fri · 9 AM – 5 PM</span></div>
+      <div class="dk-float dk-float-b"><i></i><span id="hoursBadge">Mon – Fri · 9 AM – 5 PM</span></div>
     </div>
   </div>
 </section>
@@ -199,7 +199,7 @@
       <div class="section-title"><h2 id="h-qr">Scan to WhatsApp</h2><p>Point your camera here to start a chat with us.</p><div class="orn"><i></i></div></div>
       <div class="card qr-card">
         <img src="assets/brand/qr-whatsapp.png" alt="QR code that opens a WhatsApp chat with Khandelwal Group" width="260" height="260" loading="lazy">
-        <p>+91 93718 14999</p>
+        <p data-calc="waDisplay">+91 93718 14999</p>
         <div class="qr-actions">
           <a class="btn btn-sm" href="assets/brand/qr-whatsapp.png" download="Khandelwal-Group-WhatsApp-QR.png"><svg class="ic"><use href="#i-download"/></svg>Download</a>
           <a class="btn btn-sm btn-ghost" href="https://wa.me/919371814999" target="_blank" rel="noopener"><img class="wa-ic" src="assets/brand/whatsapp.png" alt="" width="20" height="20">Open chat</a>
@@ -272,7 +272,7 @@
       </section>
 
       <section id="appointment" aria-labelledby="h-appt">
-        <div class="section-title"><h2 id="h-appt">Make an Appointment</h2><p>Pick a weekday (Monday to Friday) and a time. We'll confirm on WhatsApp.</p><div class="orn"><i></i></div></div>
+        <div class="section-title"><h2 id="h-appt">Make an Appointment</h2><p id="apptHint">Pick a weekday (Monday to Friday) and a time. We'll confirm on WhatsApp.</p><div class="orn"><i></i></div></div>
         <form class="card form" id="apptForm" novalidate>
           <div class="field"><label for="aName">Your name</label><input id="aName" name="name" autocomplete="name" placeholder="Full name" required><span class="err"></span></div>
           <div class="row">
@@ -294,7 +294,7 @@
         <div class="field"><label for="iEmail">Email <span style="color:var(--sage)">(optional)</span></label><input id="iEmail" name="email" type="email" autocomplete="email" placeholder="name@example.com"><span class="err"></span></div>
         <div class="field"><label for="iMsg">Message</label><textarea id="iMsg" name="message" placeholder="Tell us about your requirement, e.g. corporate gifting for 100 pieces" required></textarea><span class="err"></span></div>
         <button class="btn btn-block" type="submit"><img class="wa-ic" src="assets/brand/whatsapp.png" alt="" width="20" height="20">Send on WhatsApp</button>
-        <p class="note">Opens WhatsApp with your message to +91 93718 14999.</p>
+        <p class="note">Opens WhatsApp with your message to <span data-calc="waDisplay">+91 93718 14999</span>.</p>
       </form>
     </section>
 

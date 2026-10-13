@@ -13,7 +13,7 @@ module.exports = async (req, res) => {
     if (req.method === 'GET') {
       const db = await getDb();
       const doc = await db.collection('site').findOne({ _id: DOC_ID });
-      const content = doc ? { texts: doc.texts, services: doc.services, products: doc.products, gallery: doc.gallery } : null;
+      const content = doc ? { texts: doc.texts, services: doc.services, products: doc.products, gallery: doc.gallery, categories: doc.categories, testimonials: doc.testimonials, hours: doc.hours, settings: doc.settings } : null;
       // the admin editor asks for a fresh copy; visitors get a briefly cached one
       const fresh = /[?&]fresh=1/.test(req.url || '');
       return send(res, 200, { content, updatedAt: doc ? doc.updatedAt : null }, {

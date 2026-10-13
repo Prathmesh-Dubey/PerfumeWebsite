@@ -41,6 +41,8 @@
         <button type="button" role="tab" data-tab="products" aria-selected="true">Bottles <span id="nProducts"></span></button>
         <button type="button" role="tab" data-tab="services" aria-selected="false">Services <span id="nServices"></span></button>
         <button type="button" role="tab" data-tab="gallery" aria-selected="false">Gallery <span id="nGallery"></span></button>
+        <button type="button" role="tab" data-tab="reviews" aria-selected="false">Reviews <span id="nReviews"></span></button>
+        <button type="button" role="tab" data-tab="hours" aria-selected="false">Timings &amp; contact</button>
         <button type="button" role="tab" data-tab="texts" aria-selected="false">Texts</button>
       </nav>
       <div class="adm-bar-actions">
@@ -56,19 +58,32 @@
     <!-- bottles -->
     <section data-panel="products">
       <div class="adm-head">
-        <div><h2>Bottles &amp; prices</h2><p class="adm-muted">Change names, sizes and prices, replace photos, or add new bottles. The first bottles here show first on the website.</p></div>
+        <div><h2>Bottles &amp; prices</h2><p class="adm-muted">Change names, sizes and prices, replace photos, or add new bottles. To reorder, type a new <b>rank</b> number on a bottle (#1 shows first on the website).</p></div>
         <div class="adm-head-tools">
           <input type="search" id="pSearch" placeholder="Search by name/code" aria-label="Search bottles">
           <button class="btn" type="button" id="addProduct">+ Add bottle</button>
         </div>
       </div>
+
+      <div class="card adm-cats">
+        <div class="adm-cats-head">
+          <div><b>Categories</b><span class="adm-muted"> · the filter buttons on the website</span></div>
+          <form class="adm-cat-add" id="catAdd" novalidate>
+            <input id="catName" maxlength="30" placeholder="New category, e.g. Gift sets" aria-label="New category name">
+            <button class="btn btn-sm" type="submit">+ Add category</button>
+          </form>
+        </div>
+        <div class="adm-cat-list" id="catList"></div>
+      </div>
+      <div class="adm-filter" id="catFilter" role="group" aria-label="Show bottles in category"></div>
+
       <div class="adm-grid" id="productList"></div>
     </section>
 
     <!-- services -->
     <section data-panel="services" hidden>
       <div class="adm-head">
-        <div><h2>Services</h2><p class="adm-muted">Change service names, descriptions and photos, add new services, or delete ones you no longer offer. They show on the website in this order.</p></div>
+        <div><h2>Services</h2><p class="adm-muted">Change service names, descriptions and photos, add new services, or delete ones you no longer offer. Type a <b>rank</b> number to change the order they show in.</p></div>
         <div class="adm-head-tools">
           <button class="btn" type="button" id="addService">+ Add service</button>
         </div>
@@ -79,7 +94,7 @@
     <!-- gallery -->
     <section data-panel="gallery" hidden>
       <div class="adm-head">
-        <div><h2>Gallery</h2><p class="adm-muted">The first 10 photos appear on the home page; all of them appear on the Gallery page.</p></div>
+        <div><h2>Gallery</h2><p class="adm-muted">The first 10 photos (rank #1 to #10) appear on the home page; all of them appear on the Gallery page. Type a <b>rank</b> number to move a photo.</p></div>
         <div class="adm-head-tools">
           <label class="btn" for="galleryFiles">+ Add photos</label>
           <input type="file" id="galleryFiles" accept="image/*" multiple hidden>
@@ -88,10 +103,50 @@
       <div class="adm-grid adm-grid-gal" id="galleryList"></div>
     </section>
 
+    <!-- reviews -->
+    <section data-panel="reviews" hidden>
+      <div class="adm-head">
+        <div><h2>Testimonials</h2><p class="adm-muted">What customers say, shown in the swipe cards on the website. Add, edit or delete reviews, and type a <b>rank</b> number to change the order.</p></div>
+        <div class="adm-head-tools">
+          <button class="btn" type="button" id="addReview">+ Add testimonial</button>
+        </div>
+      </div>
+      <div class="adm-grid adm-grid-rev" id="reviewList"></div>
+    </section>
+
+    <!-- timings + contact -->
+    <section data-panel="hours" hidden>
+      <div class="adm-head">
+        <div><h2>Timings &amp; contact</h2><p class="adm-muted">Opening hours drive the “Open now” badge, the Business Hours card and the appointment times on the website.</p></div>
+      </div>
+      <div class="adm-cols">
+        <div class="card adm-block">
+          <h3>Business hours</h3>
+          <div class="adm-hours" id="hoursEditor"></div>
+          <div class="adm-hours-tools">
+            <button type="button" class="adm-chip" id="hoursCopy">Copy Monday to all open days</button>
+          </div>
+        </div>
+        <div class="card adm-block">
+          <h3>WhatsApp number</h3>
+          <p class="adm-muted">Every WhatsApp button, enquiry and appointment message on the website opens a chat with this number.</p>
+          <div class="field">
+            <label for="waInput">Number with country code</label>
+            <input id="waInput" type="tel" inputmode="tel" autocomplete="off" placeholder="e.g. +91 93718 14999" maxlength="24">
+            <small id="waHelp" class="adm-help"></small>
+          </div>
+          <div class="adm-wa-actions">
+            <a class="btn btn-sm btn-ghost" id="waTest" href="#" target="_blank" rel="noopener">Test this number</a>
+          </div>
+          <p class="adm-note" id="waNote" hidden>The “Scan to WhatsApp” QR picture is made for the original number, so it is hidden on the website while a different number is set.</p>
+        </div>
+      </div>
+    </section>
+
     <!-- texts -->
     <section data-panel="texts" hidden>
-      <div class="adm-head"><div><h2>Website texts</h2><p class="adm-muted">Leave a box empty to use the original text.</p></div></div>
-      <div class="adm-texts" id="textList"></div>
+      <div class="adm-head"><div><h2>Website texts</h2><p class="adm-muted">Edit the wording on the website. Leave a box empty to use the original text, or tap “Use original” to go back.</p></div></div>
+      <div class="adm-text-groups" id="textList"></div>
     </section>
   </main>
 </div>
