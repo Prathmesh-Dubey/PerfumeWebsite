@@ -148,7 +148,40 @@ label.btn { cursor: pointer; }
 .adm-rev-top { position: relative; display: flex; align-items: center; gap: 12px; padding: 14px 14px 0; min-height: 64px; }
 .adm-rev .adm-rank { position: static; margin-left: auto; }
 .adm-av { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; font-family: var(--serif); font-size: 22px; font-weight: 600; color: #fff; text-shadow: 0 1px 2px rgba(0, 0, 0, .2); flex: none; }
+.adm-av { overflow: hidden; }
+.adm-av img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .adm-stars { color: #C8963E; letter-spacing: 2px; font-size: 14px; }
+.adm-rev-photo-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+.adm-rev-photo .adm-chip[disabled] { opacity: .6; cursor: progress; }
+.adm-stars i { font-style: normal; color: #E3DCD5; }
+/* star picker: tap a star to set 1 to 5 */
+.adm-rate { display: flex; align-items: center; gap: 2px; }
+.adm-star {
+  width: 38px; height: 38px; padding: 0; border: 0; border-radius: 8px; background: none; cursor: pointer;
+  font-size: 26px; line-height: 1; color: #E3DCD5; transition: color .15s, transform .15s;
+}
+.adm-star.on { color: #D4A53A; }
+.adm-star:hover { transform: scale(1.15); }
+.adm-star:focus-visible { outline: 2px solid var(--rose-deep); outline-offset: 1px; }
+.adm-rate-n { margin-left: 8px; font-size: 13px; color: var(--sage); }
+.adm-private { font-weight: 400; font-size: 11px; color: var(--sage); margin-left: 6px; }
+.adm-photo-note { color: var(--sage); font-size: 12px; }
+
+/* blog: one wide card per article, cover on the left from tablet size up */
+.adm-grid-blog { grid-template-columns: 1fr; }
+.adm-blog .adm-photo { aspect-ratio: 16 / 10; }
+@media (min-width: 900px) {
+  .adm-blog { display: grid; grid-template-columns: 340px 1fr; grid-template-rows: 1fr auto; }
+  .adm-blog .adm-photo { aspect-ratio: auto; min-height: 240px; grid-row: 1 / 3; }
+  .adm-blog .adm-actions { grid-column: 2; }
+}
+.adm-blog .adm-home { position: absolute; top: 8px; right: 8px; }
+.adm-blog-body { min-height: 280px !important; line-height: 1.6; font-family: inherit; }
+.adm-blog-link a { display: inline-flex; min-height: 40px; align-items: center; font-size: 14px; }
+.adm-blog-link .adm-muted { display: inline-flex; min-height: 40px; align-items: center; font-size: 13px; }
+.adm-fmt { margin-top: 8px !important; font-size: 13px; }
+.adm-fmt code { padding: 1px 6px; border-radius: 4px; background: var(--blush); color: var(--rose-deep); font-size: 12px; }
+.adm-photo-note.bad { color: var(--warn); }
 .adm-rev .adm-body .field textarea { min-height: 130px; }
 .adm-count { color: var(--sage); font-size: 12px; text-align: right; }
 

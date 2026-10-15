@@ -12,7 +12,7 @@
   const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   const WEEK = [1, 2, 3, 4, 5, 6, 0]; // Monday first
   const AVATAR_COLORS = ['#E4B5C2', '#8FB09F', '#D9A98F', '#B9A7D6', '#9CC0D6', '#E3C98F'];
-  const TABS = ['products', 'services', 'gallery', 'reviews', 'hours', 'texts'];
+  const TABS = ['products', 'services', 'gallery', 'reviews', 'blog', 'hours', 'texts'];
 
   // [key, label, help, kind] kind: undefined = one line, 'long' = paragraph
   const TEXT_GROUPS = [
@@ -177,6 +177,7 @@
     $('#nServices').textContent = state ? `(${state.services.length})` : '';
     $('#nGallery').textContent = state ? `(${state.gallery.length})` : '';
     $('#nReviews').textContent = state ? `(${state.testimonials.length})` : '';
+    $('#nBlogs').textContent = state ? `(${state.blogs.length})` : '';
   }
 
   function jumpTo(tab, sel, msg) {
@@ -209,6 +210,27 @@
       renderReviews();
       return jumpTo('reviews', `#reviewList [data-i="${rev}"] textarea`, `Testimonial #${rev + 1} needs some text. Write it or delete the card.`);
     }
+    const revMail = state.testimonials.findIndex(t => !validEmail(t.email));
+    if (revMail > -1) {
+      renderReviews();
+      return jumpTo('reviews', `#reviewList [data-i="${revMail}"] input[data-f="email"]`, `Testimonial #${revMail + 1}: check the email address (or clear it).`);
+    }
+    const revImg = state.testimonials.findIndex(t => isLink(t.img) && !validLink(t.img));
+    if (revImg > -1) {
+      renderReviews();
+      return jumpTo('reviews', `#reviewList [data-i="${revImg}"] input[data-f="img"]`, `Testimonial #${revImg + 1}: the image link must start with https:// (or clear it).`);
+    }
+    const blog = state.blogs.findIndex(b => !String(b.title).trim() || !String(b.body).trim() || !/^\d{4}-\d{2}-\d{2}$/.test(b.date || ''));
+    if (blog > -1) {
+      renderBlogs();
+      return jumpTo('blog', `#blogEditList [data-i="${blog}"]`, `Article #${blog + 1} needs a title, a date and some text before saving.`);
+    }
+    const blogImg = state.blogs.findIndex(b => isLink(b.cover) && !validLink(b.cover));
+    if (blogImg > -1) {
+      renderBlogs();
+      return jumpTo('blog', `#blogEditList [data-i="${blogImg}"] input[data-f="cover"]`, `Article #${blogImg + 1}: the cover link must start with https:// (or clear it).`);
+    }
+    ensureBlogIds();
     if (!validWa(state.settings.wa)) return jumpTo('hours', '#waInput', 'Enter a valid WhatsApp number with country code.');
     const hb = state.hours.findIndex(h => h.on && h.to <= h.from);
     if (hb > -1) return jumpTo('hours', `#hoursEditor [data-d="${hb}"] input[data-h="to"]`, `${DAY_NAMES[hb]}: closing time must be after opening time.`);
@@ -220,7 +242,8 @@
       savedSnap = snap();
       state.products.forEach(p => delete p._new);
       state.services.forEach(s => delete s._new);
-      renderProducts(); renderServices(); renderReviews();
+      state.blogs.forEach(b => delete b._new);
+      renderProducts(); renderServices(); renderReviews(); renderBlogs();
       toast('Saved. The website now shows your changes.');
     } catch (e) {
       toast(e.message, 5000);
@@ -532,19 +555,54 @@
   });
 
   /* ---------- testimonials ---------- */
+  // a customer photo is optional: uploaded from the device (stored with the site) or a link to an image (https)
+  const isLink = v => /^https?:\/\//i.test(v || '');
+  const validLink = v => /^https:\/\/[^\s"'<>()\\]{3,600}$/i.test(String(v || '').trim());
+  const initial = t => esc((t.n || '?').trim().charAt(0).toUpperCase() || '?');
+  const avatarInner = t => t.img && (!isLink(t.img) || validLink(t.img))
+    ? `<img src="${esc(t.img)}" alt="" referrerpolicy="no-referrer">` : initial(t);
+  function photoNote(t) {
+    if (!t.img) return 'No photo: the website shows a coloured avatar.';
+    if (!isLink(t.img)) return 'Using the photo uploaded from your device.';
+    return validLink(t.img) ? 'Using the image link.' : 'The link must start with https://';
+  }
+  const stars = t => Math.min(5, Math.max(1, Math.round(+t.rating || 5)));
+  const validEmail = v => !v || /^[^\s@<>"'(),;:]+@[^\s@<>"'(),;:]+\.[^\s@<>"'(),;:]{2,}$/.test(String(v).trim());
   function reviewCard(t, i) {
     const n = state.testimonials.length;
     const color = t.c || AVATAR_COLORS[i % AVATAR_COLORS.length];
+    const r = stars(t);
     return `
       <article class="card adm-item adm-rev${t._new ? ' is-new' : ''}" data-i="${i}">
         <div class="adm-rev-top">
-          <span class="adm-av" style="background:${color}" aria-hidden="true">${esc((t.n || '?').trim().charAt(0).toUpperCase() || '?')}</span>
-          <span class="adm-stars" aria-hidden="true">★★★★★</span>
+          <span class="adm-av" style="background:${color}" aria-hidden="true">${avatarInner(t)}</span>
+          <span class="adm-stars" aria-hidden="true">${'★'.repeat(r)}<i>${'★'.repeat(5 - r)}</i></span>
           ${rankBox(i, n)}
         </div>
         <div class="adm-body">
           <div class="field"><label>Customer name</label><input data-f="n" value="${esc(t.n)}" maxlength="60" placeholder="e.g. Priya"></div>
+          <div class="field">
+            <label id="rate-l-${i}">Stars</label>
+            <div class="adm-rate" role="radiogroup" aria-labelledby="rate-l-${i}">
+              ${[1, 2, 3, 4, 5].map(k => `<button type="button" class="adm-star${k <= r ? ' on' : ''}" data-act="rate" data-r="${k}" role="radio" aria-checked="${k === r}" aria-label="${k} star${k > 1 ? 's' : ''}">★</button>`).join('')}
+              <span class="adm-rate-n">${r} / 5</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>Customer email <small class="adm-private">private: never shown on the website</small></label>
+            <input type="email" data-f="email" value="${esc(t.email || '')}" maxlength="120" inputmode="email" autocomplete="off" placeholder="e.g. priya@gmail.com (optional)">
+            <small class="adm-photo-note${validEmail(t.email) ? '' : ' bad'}" data-emailmsg>${validEmail(t.email) ? '' : 'Check this email address.'}</small>
+          </div>
           <div class="field"><label>What they said</label><textarea data-f="q" maxlength="500" placeholder="A sentence or two from the customer">${esc(t.q)}</textarea><small class="adm-count" data-count>${String(t.q || '').length}/500</small></div>
+          <div class="field adm-rev-photo">
+            <label>Customer photo (optional)</label>
+            <div class="adm-rev-photo-row">
+              <button type="button" class="adm-chip" data-act="upload"${t._busy ? ' disabled' : ''}>${t._busy ? 'Uploading…' : t.img && !isLink(t.img) ? 'Change photo' : 'Upload from device'}</button>
+              ${t.img ? '<button type="button" class="adm-chip" data-act="rmphoto">Remove photo</button>' : ''}
+            </div>
+            <input type="url" data-f="img" inputmode="url" maxlength="600" placeholder="…or paste an image link (https://…)" value="${isLink(t.img) ? esc(t.img) : ''}" aria-label="Image link for ${esc(t.n || 'this customer')}">
+            <small class="adm-photo-note" data-imgmsg>${photoNote(t)}</small>
+          </div>
         </div>
         <div class="adm-actions">
           <button type="button" data-act="del" class="adm-del">Delete</button>
@@ -561,25 +619,157 @@
     const f = e.target.dataset.f; if (!f) return;
     const card = e.target.closest('[data-i]');
     const t = state.testimonials[+card.dataset.i];
+    if (f === 'img') {
+      // typing a link replaces an uploaded photo; clearing the box removes the photo
+      t.img = e.target.value.trim();
+      $('.adm-av', card).innerHTML = avatarInner(t);
+      $('[data-imgmsg]', card).textContent = photoNote(t);
+      $('[data-imgmsg]', card).classList.toggle('bad', isLink(t.img) && !validLink(t.img));
+      return updateStatus();
+    }
     t[f] = e.target.value;
+    if (f === 'email') {
+      const ok = validEmail(t.email), msg = $('[data-emailmsg]', card);
+      msg.textContent = ok ? '' : 'Check this email address.'; msg.classList.toggle('bad', !ok);
+    }
     if (f === 'q') $('[data-count]', card).textContent = `${e.target.value.length}/500`;
-    if (f === 'n') $('.adm-av', card).textContent = (e.target.value.trim().charAt(0) || '?').toUpperCase();
+    if (f === 'n' && !t.img) $('.adm-av', card).textContent = (e.target.value.trim().charAt(0) || '?').toUpperCase();
     updateStatus();
   });
+  // a link that doesn't load as an image: say so next to the box
+  $('#reviewList').addEventListener('error', e => {
+    if (!e.target.matches || !e.target.matches('.adm-av img')) return;
+    const card = e.target.closest('[data-i]'), t = state.testimonials[+card.dataset.i];
+    e.target.replaceWith(document.createTextNode((t.n || '?').trim().charAt(0).toUpperCase() || '?'));
+    const msg = $('[data-imgmsg]', card);
+    msg.textContent = "That link didn't load as an image. Check it opens a picture (often ends in .jpg or .png).";
+    msg.classList.add('bad');
+  }, true);
   wireRank($('#reviewList'), () => state.testimonials, renderReviews);
-  $('#reviewList').addEventListener('click', e => {
-    const b = e.target.closest('[data-act="del"]'); if (!b) return;
+  $('#reviewList').addEventListener('click', async e => {
+    const b = e.target.closest('[data-act]'); if (!b) return;
     const i = +b.closest('[data-i]').dataset.i, t = state.testimonials[i];
-    if (!confirm(`Delete the testimonial from "${t.n || 'this customer'}"? It will disappear from the website after you save.`)) return;
-    state.testimonials.splice(i, 1); renderReviews();
+    const act = b.dataset.act;
+    if (act === 'del') {
+      if (t._busy) return;
+      if (!confirm(`Delete the testimonial from "${t.n || 'this customer'}"? It will disappear from the website after you save.`)) return;
+      state.testimonials.splice(i, 1); renderReviews();
+    } else if (act === 'rate') {
+      t.rating = +b.dataset.r; renderReviews();
+      const again = $(`#reviewList [data-i="${i}"] .adm-star[data-r="${t.rating}"]`); if (again) again.focus({ preventScroll: true });
+    } else if (act === 'rmphoto') {
+      t.img = ''; renderReviews();
+      toast('Photo removed. Remember to save.');
+    } else if (act === 'upload') {
+      const [file] = await pickFiles(false); if (!file) return;
+      t._busy = true; renderReviews();
+      try {
+        t.img = await withBusy(() => upload(file, 400)); // small round avatar: 400px is plenty
+        toast('Photo added. Remember to save.');
+      } catch (err) { toast(err.message, 5000); }
+      finally { delete t._busy; renderReviews(); }
+    }
   });
   $('#addReview').addEventListener('click', () => {
     if (state.testimonials.length >= 30) return toast('You can have up to 30 testimonials. Delete one to add another.', 4000);
-    state.testimonials.unshift({ n: '', q: '', c: '', _new: true });
+    state.testimonials.unshift({ n: '', q: '', c: '', img: '', rating: 5, email: '', _new: true });
     renderReviews();
     window.scrollTo({ top: 0, behavior: 'smooth' });
     const inp = $('#reviewList [data-i="0"] input[data-f="n"]'); if (inp) inp.focus({ preventScroll: true });
     toast('New testimonial added at rank #1. Write the name and what they said, then save.', 4500);
+  });
+
+  /* ---------- blog ---------- */
+  // each article gets a web address (blog.html?p=<id>) from its title the first time it is saved; it never
+  // changes after that, so links people have shared keep working even if the title is edited later
+  const slugify = s => String(s || '').toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60).replace(/-+$/, '') || 'article';
+  function ensureBlogIds() {
+    const used = new Set(state.blogs.filter(b => b.id).map(b => b.id));
+    state.blogs.forEach(b => {
+      if (b.id) return;
+      const base = slugify(b.title); let id = base, k = 2;
+      while (used.has(id)) id = `${base}-${k++}`;
+      b.id = id; used.add(id);
+    });
+  }
+  const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+  const blogPlace = i => (i === 0 ? 'Featured on the home page' : i <= 3 ? 'In the home page grid' : 'Blog page only');
+
+  function blogCard(b, i) {
+    const n = state.blogs.length;
+    const showImg = b.cover && (!isLink(b.cover) || validLink(b.cover));
+    return `
+      <article class="card adm-item adm-blog${b._new ? ' is-new' : ''}" data-i="${i}">
+        <div class="adm-photo${showImg ? '' : ' empty'}">
+          ${showImg ? `<img src="${esc(b.cover)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : '<span>No cover photo yet.<br>Upload one or paste a link.</span>'}
+          ${rankBox(i, n)}
+          <span class="adm-home">${blogPlace(i)}</span>
+          ${b._busy ? '<span class="adm-busy">Uploading…</span>' : ''}
+          <div class="adm-photo-tools">
+            <button type="button" class="adm-chip" data-act="cover"${b._busy ? ' disabled' : ''}>${b.cover && !isLink(b.cover) ? 'Change cover' : 'Upload cover'}</button>
+            ${b.cover ? '<button type="button" class="adm-chip" data-act="rmcover">Remove</button>' : ''}
+          </div>
+        </div>
+        <div class="adm-body">
+          <div class="field"><label>Cover photo link (optional, instead of uploading)</label><input type="url" data-f="cover" inputmode="url" maxlength="600" placeholder="https://…" value="${isLink(b.cover) ? esc(b.cover) : ''}"></div>
+          <div class="field"><label>Title</label><input data-f="title" value="${esc(b.title)}" maxlength="150" placeholder="e.g. How to choose a wedding return gift"></div>
+          <div class="adm-row">
+            <div class="field"><label>Date</label><input type="date" data-f="date" value="${esc(b.date)}"></div>
+            <div class="field adm-blog-link"><label>On the website</label>${b._new || !b.id ? '<span class="adm-muted">Save to publish</span>' : `<a href="blog.html?p=${encodeURIComponent(b.id)}" target="_blank" rel="noopener">View article ↗</a>`}</div>
+          </div>
+          <div class="field"><label>Short summary (shown on the cards)</label><textarea data-f="excerpt" maxlength="300" placeholder="One or two sentences that make people want to read it">${esc(b.excerpt)}</textarea><small class="adm-count" data-count="excerpt">${String(b.excerpt || '').length}/300</small></div>
+          <div class="field"><label>Article text</label><textarea class="adm-blog-body" data-f="body" maxlength="20000" placeholder="Write the article here.&#10;&#10;## A heading&#10;A paragraph…&#10;&#10;- A bullet point&#10;- Another one with **bold** words">${esc(b.body)}</textarea><small class="adm-count" data-count="body">${String(b.body || '').length}/20000</small></div>
+        </div>
+        <div class="adm-actions">
+          <button type="button" data-act="del" class="adm-del">Delete</button>
+        </div>
+      </article>`;
+  }
+  function renderBlogs() {
+    $('#blogEditList').innerHTML = state.blogs.length
+      ? state.blogs.map(blogCard).join('')
+      : '<p class="adm-empty">No articles. The Blog section and Blog links are hidden on the website until you add one.</p>';
+    updateStatus();
+  }
+  $('#blogEditList').addEventListener('input', e => {
+    const f = e.target.dataset.f; if (!f) return;
+    const card = e.target.closest('[data-i]'), b = state.blogs[+card.dataset.i];
+    b[f] = f === 'cover' ? e.target.value.trim() : e.target.value;
+    const count = $(`[data-count="${f}"]`, card);
+    if (count) count.textContent = `${e.target.value.length}/${f === 'body' ? 20000 : 300}`;
+    updateStatus();
+  });
+  // re-draw the cover preview once a pasted link is finished
+  $('#blogEditList').addEventListener('change', e => { if (e.target.dataset.f === 'cover') renderBlogs(); });
+  wireRank($('#blogEditList'), () => state.blogs, renderBlogs);
+  $('#blogEditList').addEventListener('click', async e => {
+    const btn = e.target.closest('[data-act]'); if (!btn) return;
+    const i = +btn.closest('[data-i]').dataset.i, b = state.blogs[i];
+    const act = btn.dataset.act;
+    if (act === 'del') {
+      if (b._busy) return;
+      if (!confirm(`Delete the article "${b.title || 'new article'}"? It will disappear from the website after you save.`)) return;
+      state.blogs.splice(i, 1); renderBlogs();
+    } else if (act === 'rmcover') {
+      b.cover = ''; renderBlogs();
+    } else if (act === 'cover') {
+      const [file] = await pickFiles(false); if (!file) return;
+      b._busy = true; renderBlogs();
+      try {
+        b.cover = await withBusy(() => upload(file, 1800)); // wide cover: keep it sharp on big screens
+        toast('Cover photo added. Remember to save.');
+      } catch (err) { toast(err.message, 5000); }
+      finally { delete b._busy; renderBlogs(); }
+    }
+  });
+  $('#addBlog').addEventListener('click', () => {
+    if (state.blogs.length >= 50) return toast('You can have up to 50 articles. Delete one to add another.', 4000);
+    state.blogs.unshift({ id: '', title: '', date: today(), cover: '', excerpt: '', body: '', _new: true });
+    renderBlogs();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const inp = $('#blogEditList [data-i="0"] input[data-f="title"]'); if (inp) inp.focus({ preventScroll: true });
+    toast('New article added at rank #1 (featured on the home page). Write it, then save.', 4500);
   });
 
   /* ---------- timings ---------- */
@@ -701,6 +891,7 @@
       categories: has('categories') && content.categories.length ? content.categories : base.categories,
       testimonials: has('testimonials') ? content.testimonials : base.testimonials,
       hours: has('hours') && content.hours.length === 7 ? content.hours : base.hours,
+      blogs: has('blogs') ? content.blogs : base.blogs,
       settings: Object.assign({}, base.settings, content?.settings || {})
     };
     // bottles saved under a category that no longer exists go to the first category
@@ -708,7 +899,7 @@
     // nothing saved yet: the built-in content counts as unsaved so the first Save stores it
     savedSnap = content ? snap() : '';
     pFilter = 'all';
-    renderProducts(); renderServices(); renderGallery(); renderReviews(); renderHours(); renderWa(false); renderTexts();
+    renderProducts(); renderServices(); renderGallery(); renderReviews(); renderBlogs(); renderHours(); renderWa(false); renderTexts();
     const tab = location.hash.slice(1);
     setTab(TABS.includes(tab) ? tab : 'products');
     show('app');

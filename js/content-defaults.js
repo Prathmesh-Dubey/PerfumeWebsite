@@ -72,5 +72,28 @@ window.SITE_DEFAULTS = (() => {
   // wa = WhatsApp number, country code first, digits only
   const settings = { wa: '919371814999' };
 
-  return { texts, services, products, gallery, categories, testimonials, hours, settings };
+  // blog articles (rank #1 first). Body formatting: "## " heading, "- " bullet point,
+  // **bold**, and an empty line between paragraphs.
+  const blogs = [{
+    id: 'choosing-fragrance-corporate-festive-gifting',
+    title: 'Choosing the right fragrance for corporate and festive gifting',
+    date: '2026-10-06',
+    cover: 'assets/gallery/full/g24.jpg',
+    excerpt: 'A short guide to picking a scent that suits your clients, your team and the occasion, from Khandelwal Group.',
+    body: [
+      'A fragrance is one of the most personal gifts you can give, which is exactly why it is so easy to get wrong. A few simple choices make it far more likely that the people receiving it will actually love it.',
+      '## Start with who is receiving it',
+      'When you are gifting to a large group, such as clients, staff or wedding guests, choose a scent that is pleasant to most people rather than one with a very strong or unusual character. Fresh, softly floral, fruity and gentle woody fragrances are widely liked. Save bold, intense notes for gifts to people whose taste you know well.',
+      '## Match the scent to the occasion',
+      '- **Corporate gifts:** clean, fresh and balanced fragrances feel professional and are comfortable to wear every day.\n- **Festive gifting:** richer, warmer notes such as amber, musk and rose feel celebratory.\n- **Weddings and party favours:** elegant floral or soft sweet fragrances work well and photograph beautifully in gift packaging.',
+      '## Pick the right size',
+      'Smaller bottles keep per-gift cost sensible when you are gifting to many people, while a larger bottle feels more premium for key clients and senior guests. Many buyers mix both, with a larger bottle for a few important recipients and a smaller one for everyone else.',
+      '## Think about customisation',
+      'If the gift is meant to carry your brand, ask about custom fragrances and private label options. A scent and packaging made just for your company or event is remembered long after a generic gift is forgotten.',
+      '## Order early for large quantities',
+      'Bulk, custom and private label orders take planning. Share your quantity, budget and date early so there is time to finalise the fragrance, packaging and delivery.'
+    ].join('\n\n')
+  }];
+
+  return { texts, services, products, gallery, categories, testimonials, hours, settings, blogs };
 })();

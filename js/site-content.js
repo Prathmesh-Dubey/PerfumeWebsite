@@ -15,6 +15,7 @@ window.SiteContent = (() => {
       categories: Array.isArray(saved.categories) && saved.categories.length ? saved.categories : D.categories,
       testimonials: Array.isArray(saved.testimonials) ? saved.testimonials : D.testimonials,
       hours: Array.isArray(saved.hours) && saved.hours.length === 7 ? saved.hours : D.hours,
+      blogs: Array.isArray(saved.blogs) ? saved.blogs : D.blogs,
       settings: Object.assign({}, D.settings, saved.settings || {})
     };
   }
@@ -58,5 +59,33 @@ window.SiteContent = (() => {
     return /^91\d{10}$/.test(d) ? `+91 ${d.slice(2, 7)} ${d.slice(7)}` : '+' + d;
   }
 
-  return { load, applyTexts, formatPhone, defaults: D };
+  /* ---------- blog helpers (home page and blog.html) ---------- */
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  // "2026-10-06" -> "6 October 2026"
+  function blogDate(d) {
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(d || '');
+    if (!m) return '';
+    return new Date(Date.UTC(+m[1], +m[2] - 1, +m[3])).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+  }
+  // article text written in /edit -> safe HTML. Everything is escaped first; then only
+  // "## heading", "- bullet", **bold** and blank-line paragraphs are turned into tags.
+  function blogHtml(body) {
+    const inline = s => esc(s).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    let html = '', para = [], list = null;
+    const endPara = () => { if (para.length) { html += `<p>${inline(para.join(' '))}</p>`; para = []; } };
+    const endList = () => { if (list) { html += `<ul>${list.map(li => `<li>${inline(li)}</li>`).join('')}</ul>`; list = null; } };
+    String(body || '').replace(/\r\n?/g, '\n').split('\n').forEach(raw => {
+      const l = raw.trim();
+      if (!l) { endPara(); endList(); return; }
+      if (/^#{2,3} /.test(l)) { endPara(); endList(); html += `<h2>${inline(l.replace(/^#+ /, ''))}</h2>`; return; }
+      if (/^[-*•] /.test(l)) { endPara(); (list = list || []).push(l.slice(2)); return; }
+      endList(); para.push(l);
+    });
+    endPara(); endList();
+    return html;
+  }
+  const blogUrl = p => `blog.html?p=${encodeURIComponent(p.id)}`;
+  const BLOG_COVER = 'assets/gallery/thumb/poster.jpg'; // used when an article has no cover photo
+
+  return { load, applyTexts, formatPhone, defaults: D, esc, blogDate, blogHtml, blogUrl, BLOG_COVER };
 })();

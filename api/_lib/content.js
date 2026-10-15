@@ -15,6 +15,20 @@ const img = (v, name, optional) => {
   if (typeof v !== 'string' || !IMG_RE.test(v)) throw bad(`${name}: invalid image`);
   return v;
 };
+// an uploaded/built-in image, or a link to an image on another website (https only)
+const URL_RE = /^https:\/\/[^\s"'<>()\\]{3,600}$/i;
+const imgOrUrl = (v, name) => {
+  if (v === '' || v == null) return '';
+  if (typeof v === 'string' && (IMG_RE.test(v) || URL_RE.test(v.trim()))) return v.trim();
+  throw bad(`${name}: use an uploaded photo or an image link starting with https://`);
+};
+const EMAIL_RE = /^[^\s@<>"'(),;:]+@[^\s@<>"'(),;:]+\.[^\s@<>"'(),;:]{2,}$/;
+const email = (v, name) => {
+  if (v === '' || v == null) return '';
+  const s = typeof v === 'string' ? v.trim().toLowerCase() : '';
+  if (s.length > 120 || !EMAIL_RE.test(s)) throw bad(`${name}: enter a valid email like name@gmail.com, or leave it empty`);
+  return s;
+};
 const int = (v, min, max, name) => {
   const n = Number(v);
   if (!Number.isInteger(n) || n < min || n > max) throw bad(`${name} must be a whole number between ${min} and ${max}`);
@@ -86,9 +100,27 @@ function validate(input) {
     return {
       n: str(t.n || '', 60, `Testimonial ${i + 1} name`) || 'Customer',
       q,
-      c: /^#[0-9a-f]{6}$/i.test(t.c || '') ? t.c : ''
+      c: /^#[0-9a-f]{6}$/i.test(t.c || '') ? t.c : '',
+      img: imgOrUrl(t.img, `Testimonial ${i + 1} photo`),
+      rating: t.rating == null || t.rating === '' ? 5 : int(t.rating, 1, 5, `Testimonial ${i + 1} stars`),
+      email: email(t.email, `Testimonial ${i + 1} email`) // private: only the logged-in editor gets it back
     };
   });
+
+  const blogs = list(input.blogs || [], 50, 'blog articles').map((b, i) => {
+    const n = `Article ${i + 1}`;
+    const id = String((b && b.id) || '');
+    if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(id) || id.length > 80) throw bad(`${n}: invalid web address`);
+    const title = str(b.title || '', 150, `${n} title`);
+    if (!title) throw bad(`${n} needs a title`);
+    const date = String(b.date || '');
+    const dm = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date);
+    if (!dm || +dm[2] < 1 || +dm[2] > 12 || +dm[3] < 1 || +dm[3] > 31) throw bad(`${n}: choose a date`);
+    const body = str(b.body || '', 20000, `${n} text`);
+    if (!body) throw bad(`${n} needs some text`);
+    return { id, title, date, cover: imgOrUrl(b.cover, `${n} cover photo`), excerpt: str(b.excerpt || '', 300, `${n} summary`), body };
+  });
+  if (new Set(blogs.map(b => b.id)).size !== blogs.length) throw bad('Two articles have the same web address');
 
   const h = list(input.hours || [], 7, 'days');
   if (h.length !== 7) throw bad('Opening hours must cover all 7 days');
@@ -103,7 +135,7 @@ function validate(input) {
   const wa = String(s.wa || '').replace(/\D/g, '');
   if (!/^[1-9]\d{9,14}$/.test(wa)) throw bad('WhatsApp number must be 10 to 15 digits including the country code');
 
-  return { texts, services, products, gallery, categories, testimonials, hours, settings: { wa } };
+  return { texts, services, products, gallery, categories, testimonials, hours, settings: { wa }, blogs };
 }
 
 // ids of uploaded images (/api/img?id=...) used anywhere in the content
@@ -113,6 +145,8 @@ function referencedImageIds(c) {
   c.services.forEach(s => add(s.img));
   c.products.forEach(p => { add(p.img); add(p.detail); });
   c.gallery.forEach(g => { add(g.thumb); add(g.full); });
+  c.testimonials.forEach(t => add(t.img));
+  (c.blogs || []).forEach(b => add(b.cover));
   return ids;
 }
 

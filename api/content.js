@@ -13,11 +13,18 @@ module.exports = async (req, res) => {
     if (req.method === 'GET') {
       const db = await getDb();
       const doc = await db.collection('site').findOne({ _id: DOC_ID });
-      const content = doc ? { texts: doc.texts, services: doc.services, products: doc.products, gallery: doc.gallery, categories: doc.categories, testimonials: doc.testimonials, hours: doc.hours, settings: doc.settings } : null;
-      // the admin editor asks for a fresh copy; visitors get a briefly cached one
+      // customers' emails are private: only the logged-in editor gets them, visitors never do
+      const admin = isAdmin(req);
+      const testimonials = doc && Array.isArray(doc.testimonials)
+        ? doc.testimonials.map(t => { if (admin) return t; const { email, ...pub } = t; return pub; })
+        : doc && doc.testimonials;
+      const content = doc ? { texts: doc.texts, services: doc.services, products: doc.products, gallery: doc.gallery, categories: doc.categories, testimonials, hours: doc.hours, settings: doc.settings, blogs: doc.blogs } : null;
+      // the admin editor asks for a fresh copy; visitors get a briefly cached one.
+      // The editor's copy (with emails) must never sit in a shared cache.
       const fresh = /[?&]fresh=1/.test(req.url || '');
       return send(res, 200, { content, updatedAt: doc ? doc.updatedAt : null }, {
-        'Cache-Control': fresh ? 'no-store' : 'public, max-age=0, s-maxage=10, stale-while-revalidate=60'
+        'Cache-Control': admin ? 'private, no-store' : fresh ? 'no-store' : 'public, max-age=0, s-maxage=10, stale-while-revalidate=60',
+        Vary: 'Cookie'
       });
     }
 

@@ -42,6 +42,7 @@
         <button type="button" role="tab" data-tab="services" aria-selected="false">Services <span id="nServices"></span></button>
         <button type="button" role="tab" data-tab="gallery" aria-selected="false">Gallery <span id="nGallery"></span></button>
         <button type="button" role="tab" data-tab="reviews" aria-selected="false">Reviews <span id="nReviews"></span></button>
+        <button type="button" role="tab" data-tab="blog" aria-selected="false">Blog <span id="nBlogs"></span></button>
         <button type="button" role="tab" data-tab="hours" aria-selected="false">Timings &amp; contact</button>
         <button type="button" role="tab" data-tab="texts" aria-selected="false">Texts</button>
       </nav>
@@ -112,6 +113,21 @@
         </div>
       </div>
       <div class="adm-grid adm-grid-rev" id="reviewList"></div>
+    </section>
+
+    <!-- blog -->
+    <section data-panel="blog" hidden>
+      <div class="adm-head">
+        <div>
+          <h2>Blog</h2>
+          <p class="adm-muted">Write and edit articles. Rank <b>#1</b> is the big featured article on the home page, #2 to #4 show in the grid under it, and every article is on the Blog page. Type a <b>rank</b> number to change the order.</p>
+          <p class="adm-muted adm-fmt">Writing the article: leave an <b>empty line</b> between paragraphs · start a line with <code>## </code> for a heading · start a line with <code>- </code> for a bullet point · put <code>**</code> around words for <b>bold</b>.</p>
+        </div>
+        <div class="adm-head-tools">
+          <button class="btn" type="button" id="addBlog">+ Add article</button>
+        </div>
+      </div>
+      <div class="adm-grid adm-grid-blog" id="blogEditList"></div>
     </section>
 
     <!-- timings + contact -->

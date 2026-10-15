@@ -8,32 +8,7 @@ body { background: var(--ivory); font-size: 17px; }
 
 .dk-wrap { width: 100%; margin: 0; padding: 0 var(--gut); }
 
-/* ---------- top navigation ---------- */
-.dk-nav {
-  display: block; position: sticky; top: 0; z-index: 60; height: var(--nav-h);
-  background: rgba(251, 247, 242, .88); backdrop-filter: blur(14px) saturate(1.2);
-  border-bottom: 1px solid transparent; transition: border-color .25s, box-shadow .25s, background .25s;
-}
-.dk-nav.scrolled { border-bottom-color: var(--line); box-shadow: 0 8px 30px rgba(138, 85, 67, .08); background: rgba(251, 247, 242, .96); }
-.dk-nav-in { height: 100%; display: flex; align-items: center; gap: 40px; }
-.dk-logo { display: flex; align-items: center; gap: 12px; color: var(--ink); flex: none; }
-.dk-logo:hover { text-decoration: none; }
-.dk-logo img { width: 46px; height: 46px; border-radius: 12px; object-fit: cover; border: 1px solid var(--line); }
-.dk-logo span { display: flex; flex-direction: column; line-height: 1.1; }
-.dk-logo b { font-family: var(--serif); font-size: 23px; font-weight: 600; letter-spacing: .01em; }
-.dk-logo i { font-family: var(--script); font-style: normal; font-size: 19px; color: #5E2F20; margin-top: 1px; }
-.dk-links { display: flex; gap: 6px; margin-left: auto; }
-.dk-links a {
-  position: relative; padding: 10px 14px; font-size: 14px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink);
-}
-.dk-links a::after {
-  content: ""; position: absolute; left: 14px; right: 14px; bottom: 4px; height: 1px; background: var(--rose);
-  transform: scaleX(0); transform-origin: left; transition: transform .3s;
-}
-.dk-links a:hover { text-decoration: none; color: var(--rose-deep); }
-.dk-links a:hover::after, .dk-links a.on::after { transform: scaleX(1); }
-.dk-links a.on { color: var(--rose-deep); }
-.dk-cta { min-height: 46px; padding: 10px 22px; border-radius: 999px; }
+/* navbar: css/chrome.css (shared by every page) */
 
 /* ---------- jumbotron ---------- */
 .dk-hero {
@@ -155,22 +130,29 @@ body { background: var(--ivory); font-size: 17px; }
 .duo .qr-card { max-width: 380px; margin: 0; padding: 28px; box-shadow: var(--shadow-lift); }
 .duo #qr .section-title { margin-bottom: 36px; }
 
-/* services — four across, image-led */
-.main > #services { background: var(--blush-soft); }
-.cards.services { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; }
-.service .ph { aspect-ratio: 1 / 1; }
-.service .body { padding: 18px 20px 22px; gap: 8px; }
-.service h3 { font-size: 24px; }
-.service p { font-size: 15px; }
+/* services — coverflow of glass flip cards: one in the centre, the rest stacked away either side */
+.main > #services { background: var(--blush-soft); overflow: hidden; padding-block: 72px; }
+#services .section-title { margin-bottom: 18px; }
+.svc-stage::before { width: 46%; left: 8%; top: -6%; }
+.svc-stage::after { width: 42%; right: 8%; bottom: 0; }
+/* sized so the card, caption, arrows and dots fit on one screen below the nav */
+.svc-car { --cw: clamp(320px, calc((100vh - 470px) * .8), 460px); }
+.svc-now { font-size: 14px; margin-bottom: 18px; }
+.svc-cap { left: 16px; right: 16px; bottom: 16px; padding: 18px 20px 20px; }
+.svc-cap h3 { font-size: 30px; }
+.svc-glass { inset: 16px; padding: 34px 30px 26px; gap: 14px; }
+.svc-glass h3 { font-size: 36px; }
+.svc-glass p { font-size: 17px; }
+.svc-ctl { gap: 22px; }
+.svc-btn { width: 52px; height: 52px; }
 
-/* gallery — ten photos as a grid, last "see all" tile replaced by the button below */
-#galTrack { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
-#galTrack .car-slide:last-child { display: none; }
-.car-slide { padding: 0; }
-.car-card { border-radius: 14px; box-shadow: none !important; transition: transform .35s, box-shadow .35s; }
-.car-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lift) !important; }
-.car-card img { transition: transform .6s; }
-.car-card:hover img { transform: scale(1.05); }
+/* gallery — masonry in a framed box that scrolls on its own (the phone/tablet carousel is hidden here) */
+#galCar, #galDots, #galHint { display: none; }
+.gal-frame { display: block; border-radius: 26px; } /* spans the full band, edge to edge within the page gutters */
+.gal-box { height: clamp(460px, calc(100vh - var(--nav-h) - 270px), 760px); padding: 14px; }
+.masonry { column-gap: 14px; }
+.m-tile { margin-bottom: 14px; border-radius: 14px; }
+.gal-hint { display: block; margin-top: 16px; font-size: 13px; }
 .main > #gallery .more { margin-top: 44px; }
 
 /* products */
@@ -178,11 +160,13 @@ body { background: var(--ivory); font-size: 17px; }
 .chips { margin-bottom: 40px; gap: 10px; }
 .chip { min-height: 44px; padding: 8px 24px; font-size: 14px; }
 .cards.products { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 28px; }
-.product { border-radius: 16px; }
-.product .body { padding: 18px 20px 20px; }
-.product h3 { font-size: 22px; }
-.product .price { font-size: 28px; }
-.product .btn { margin-top: 12px; }
+.product { border-radius: 18px; }
+.product .body { padding: 16px 18px 18px; }
+.p-brand { font-size: 11.5px; }
+.product h3 { font-size: 19px; }
+.p-amt { font-size: 32px; }
+.p-unit { font-size: 13px; }
+.p-buy { min-height: 46px; font-size: 15px; }
 .main > #products .more { margin-top: 36px; }
 
 /* testimonials — dark band */
@@ -190,9 +174,17 @@ body { background: var(--ivory); font-size: 17px; }
 #testimonials .section-title h2 { color: var(--ivory); }
 #testimonials .section-title .orn::before, #testimonials .section-title .orn::after { background: var(--petal); }
 #testimonials .section-title .orn i { background: var(--petal); }
-#testiTrack { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; }
-.car-slide > .testi-card { padding: 40px 32px; border-radius: 18px; box-shadow: 0 24px 50px rgba(0, 0, 0, .25); border: 0; }
-.testi-card blockquote { font-size: 23px; }
+.tst { max-width: 880px; padding: 52px 110px 44px; border: 0; border-radius: 26px; box-shadow: 0 30px 60px rgba(0, 0, 0, .3); }
+.tst-av.d0 { width: 104px; height: 104px; }
+.tst-av.d1 { width: 70px; height: 70px; }
+.tst-av.d2 { width: 54px; height: 54px; }
+.tst-stars { font-size: 20px; margin-top: 22px; }
+.tst-body blockquote { font-size: 25px; max-width: 600px; }
+.tst-who b { font-size: 30px; }
+.tst-av-sm { width: 58px; height: 58px; }
+.tst-count { top: 20px; right: 22px; font-size: 12px; padding: 6px 13px; }
+.tst-nav { width: 52px; height: 52px; margin-top: -26px; }
+.tst-prev { left: 28px; } .tst-next { right: 28px; }
 
 /* blog */
 .blog-card { grid-template-columns: 440px 1fr; border-radius: 18px; height: 380px; }
@@ -201,6 +193,9 @@ body { background: var(--ivory); font-size: 17px; }
 .blog-card .body { padding: 48px 56px; gap: 14px; }
 .blog-card h3 { font-size: 38px; }
 .blog-card p { font-size: 17px; max-width: 520px; }
+.blog-slide { padding: 6px 6px 30px; }
+.blog-slide > .blog-card { height: 400px; } /* every slide the same height, whatever the cover photo */
+.main > #blog .more { margin-top: 30px; }
 
 /* hours + appointment */
 .main > .two { background: var(--blush-soft); gap: 80px; border-top: 1px solid var(--line); }
@@ -224,25 +219,10 @@ body { background: var(--ivory); font-size: 17px; }
 .field textarea { min-height: 150px; }
 .btn-block { min-height: 54px; }
 
-/* footer — dark, multi-column */
-.footer {
-  margin: 0; border-radius: 0; background: var(--ink); color: #BFCBC5; text-align: left;
-  padding: 80px var(--gut) 36px; font-size: 15px;
-}
-.dk-foot-cols { display: grid; grid-template-columns: 1.5fr 1fr 1.2fr; gap: 80px; padding-bottom: 56px; border-bottom: 1px solid rgba(255, 255, 255, .12); }
-.footer .script { font-size: 48px; color: #F1D3C4; -webkit-text-stroke: .25px #F1D3C4; }
-.footer .dk-foot-cols p { margin-top: 10px; font-family: var(--serif); font-size: 22px; font-style: italic; color: #E9DCD2; max-width: 320px; }
-.dk-foot-nav { display: flex; flex-direction: column; gap: 10px; }
-.dk-foot-nav h4 { margin: 0 0 6px; font-family: var(--serif); font-size: 20px; font-weight: 600; color: var(--ivory); letter-spacing: .04em; }
-.dk-foot-nav a { color: #BFCBC5; width: fit-content; }
-.dk-foot-nav a:hover { color: #fff; text-decoration: none; }
-.footer .dk-copy { margin-top: 28px; font-size: 13px; letter-spacing: .04em; color: #8FA19A; }
+/* footer: css/chrome.css (shared by every page) */
 
 /* smaller laptops (1024–1279) */
 @media (max-width: 1279px) {
-  .dk-nav-in { gap: 20px; }
-  .dk-links a { padding: 10px 9px; font-size: 13px; letter-spacing: .05em; }
-  .dk-cta { padding: 10px 16px; }
   .dk-title { font-size: 58px; }
   .dk-hero-in { gap: 24px; }
   .dk-stats li { padding: 0 20px; }
@@ -254,10 +234,7 @@ body { background: var(--ivory); font-size: 17px; }
   .values li { padding: 14px; grid-template-columns: 40px 1fr; column-gap: 10px; }
   .values .v-ic { width: 40px; height: 40px; }
   .duo, .main > .two { gap: 48px; }
-  .cards.services, .cards.products { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; }
-  #galTrack { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-  #galTrack .car-slide:nth-last-child(-n+3) { display: none; }
-  #testiTrack { gap: 20px; }
+  .cards.products { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; }
   .blog-card { grid-template-columns: 340px 1fr; }
   .blog-card .body { padding: 32px 36px; }
   .main > #inquiries, .main > #updates { gap: 56px; }
